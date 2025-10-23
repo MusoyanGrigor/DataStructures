@@ -18,6 +18,7 @@ public:
     using iterator = Random_access_iterator<T>;
     using const_iterator = Random_access_iterator<const T>;
 
+    // Constructors
     Vector() : m_size(0), m_capacity(4) {
         m_data = new value_type[m_capacity];
     }
@@ -65,6 +66,7 @@ public:
         }
     }
 
+    // Assignment operator
     Vector &operator=(const Vector &other) {
         if (this != &other) {
             delete[] m_data;
@@ -102,58 +104,12 @@ public:
         return *this;
     }
 
+    // Destructor
     ~Vector() {
         delete[] m_data;
     }
 
-    [[nodiscard]] size_type size() const { return m_size; }
-    [[nodiscard]] size_type max_size() const { return std::numeric_limits<size_type>::max() / (sizeof(value_type) * 2); }
-    [[nodiscard]] size_type capacity() const { return m_capacity; }
-    [[nodiscard]] pointer data() { return m_data; }
-    [[nodiscard]] const_pointer data() const { return m_data; }
-
-
-    void resize(const size_type count, const_reference value = value_type()) {
-        if (count < m_size) {
-            m_size = count;
-        } else if (count > m_size) {
-            if (count > m_capacity) {
-                const size_type new_capacity = std::max(count, m_capacity * 2 + 1);
-                auto new_data = new value_type[new_capacity];
-
-                for (size_type i = 0; i < m_size; ++i) {
-                    new_data[i] = std::move(m_data[i]);
-                }
-
-                delete[] m_data;
-                m_data = new_data;
-                m_capacity = new_capacity;
-            }
-
-            for (size_type i = m_size; i < count; ++i) {
-                m_data[i] = value;
-            }
-            m_size = count;
-        }
-    }
-
-    template<typename U>
-    void push_back(U &&value) {
-        if (m_size == m_capacity) resize_data();
-        m_data[m_size++] = std::forward<U>(value);
-    }
-
-    void pop_back() {
-        if (m_size == 0) throw std::runtime_error("Vector is empty");
-        m_size--;
-    }
-
-    template<class... Args>
-    void emplace_back(Args&&... args) {
-        if (m_size == m_capacity) resize_data();
-        push_back(value_type(std::forward<Args>(args)...));
-    }
-
+    // Element access
     reference operator[](size_type index) {
         return m_data[index];
     }
@@ -172,11 +128,39 @@ public:
         return m_data[index];
     }
 
-    [[nodiscard]] bool empty() const { return m_size == 0; }
-
-    void clear() {
-        m_size = 0;
+    reference front() {
+        if (m_size == 0) throw std::runtime_error("Vector is empty");
+        return m_data[0];
     }
+
+    const_reference front() const {
+        if (m_size == 0) throw std::runtime_error("Vector is empty");
+        return m_data[0];
+    }
+
+    reference back() {
+        if (m_size == 0) throw std::runtime_error("Vector is empty");
+        return m_data[m_size - 1];
+    }
+
+    const_reference back() const {
+        if (m_size == 0) throw std::runtime_error("Vector is empty");
+        return m_data[m_size - 1];
+    }
+
+    [[nodiscard]] pointer data() {
+        return m_data;
+    }
+
+    [[nodiscard]] const_pointer data() const {
+        return m_data;
+    }
+
+    // Capacity & size
+    [[nodiscard]] bool empty() const { return m_size == 0; }
+    [[nodiscard]] size_type size() const { return m_size; }
+    [[nodiscard]] size_type max_size() const { return std::numeric_limits<size_type>::max() / (sizeof(value_type) * 2); }
+    [[nodiscard]] size_type capacity() const { return m_capacity; }
 
     void reserve(const size_type new_capacity) {
         if (new_capacity > m_capacity) {
@@ -202,24 +186,50 @@ public:
         m_capacity = m_size;
     }
 
-    reference front() {
-        if (m_size == 0) throw std::runtime_error("Vector is empty");
-        return m_data[0];
+    // Modifiers
+    template<typename U>
+        void push_back(U &&value) {
+        if (m_size == m_capacity) resize_data();
+        m_data[m_size++] = std::forward<U>(value);
     }
 
-    const_reference front() const {
+    void pop_back() {
         if (m_size == 0) throw std::runtime_error("Vector is empty");
-        return m_data[0];
+        m_size--;
     }
 
-    reference back() {
-        if (m_size == 0) throw std::runtime_error("Vector is empty");
-        return m_data[m_size - 1];
+    void resize(const size_type count, const_reference value = value_type()) {
+        if (count < m_size) {
+            m_size = count;
+        } else if (count > m_size) {
+            if (count > m_capacity) {
+                const size_type new_capacity = std::max(count, m_capacity * 2 + 1);
+                auto new_data = new value_type[new_capacity];
+
+                for (size_type i = 0; i < m_size; ++i) {
+                    new_data[i] = std::move(m_data[i]);
+                }
+
+                delete[] m_data;
+                m_data = new_data;
+                m_capacity = new_capacity;
+            }
+
+            for (size_type i = m_size; i < count; ++i) {
+                m_data[i] = value;
+            }
+            m_size = count;
+        }
     }
 
-    const_reference back() const {
-        if (m_size == 0) throw std::runtime_error("Vector is empty");
-        return m_data[m_size - 1];
+    template<class... Args>
+    void emplace_back(Args&&... args) {
+        if (m_size == m_capacity) resize_data();
+        push_back(value_type(std::forward<Args>(args)...));
+    }
+
+    void clear() {
+        m_size = 0;
     }
 
     void swap(Vector& other) noexcept {
@@ -228,6 +238,7 @@ public:
         std::swap(m_capacity, other.m_capacity);
     }
 
+    // Iterators
     iterator begin() noexcept {
         return iterator(m_data);
     }
