@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstddef>
 #include <limits>
 #include <stdexcept>
@@ -18,12 +19,12 @@ public:
     using const_iterator = Random_access_iterator<const T>;
 
     Vector() : m_size(0), m_capacity(4) {
-        m_data = new T[m_capacity];
+        m_data = new value_type[m_capacity];
     }
 
     Vector(const Vector &other) : m_size(other.m_size), m_capacity(other.m_capacity) {
-        m_data = new T[m_capacity];
-        for (size_t i = 0; i < m_size; ++i) {
+        m_data = new value_type[m_capacity];
+        for (size_type i = 0; i < m_size; ++i) {
             m_data[i] = other.m_data[i];
         }
     }
@@ -35,22 +36,22 @@ public:
         other.m_data = nullptr;
     }
 
-    Vector(std::initializer_list<T> init) {
+    Vector(std::initializer_list<value_type> init) {
         m_size = init.size();
         m_capacity = m_size * 2;
-        m_data = new T[m_capacity];
-        for (size_t i = 0; i < m_size; ++i) {
+        m_data = new value_type[m_capacity];
+        for (size_type i = 0; i < m_size; ++i) {
             m_data[i] = init.begin()[i];
         }
     }
 
-    explicit Vector(const std::size_t count) : m_size(count), m_capacity(count) {
-        m_data = new T[m_capacity]();
+    explicit Vector(const size_type count) : m_size(count), m_capacity(count) {
+        m_data = new value_type[m_capacity]();
     }
 
-    explicit Vector(const std::size_t count, const T &value) : m_size(count), m_capacity(count) {
-        m_data = new T[m_capacity];
-        for (size_t i = 0; i < m_size; ++i) {
+    explicit Vector(const size_type count,  const_reference value) : m_size(count), m_capacity(count) {
+        m_data = new value_type[m_capacity];
+        for (size_type i = 0; i < m_size; ++i) {
             m_data[i] = value;
         }
     }
@@ -58,7 +59,7 @@ public:
     explicit Vector(iterator begin, iterator end) {
         m_size = 0;
         m_capacity = (end - begin) * 2;
-        m_data = new T[m_capacity];
+        m_data = new value_type[m_capacity];
         for (auto it = begin; it != end; ++it) {
             m_data[m_size++] = *it;
         }
@@ -69,8 +70,8 @@ public:
             delete[] m_data;
             m_size = other.m_size;
             m_capacity = other.m_capacity;
-            m_data = new T[m_capacity];
-            for (size_t i = 0; i < m_size; ++i) {
+            m_data = new value_type[m_capacity];
+            for (size_type i = 0; i < m_size; ++i) {
                 m_data[i] = other.m_data[i];
             }
         }
@@ -90,12 +91,12 @@ public:
         return *this;
     }
 
-    Vector &operator=(const std::initializer_list<T> &init) {
+    Vector &operator=(const std::initializer_list<value_type> &init) {
         delete[] m_data;
         m_size = init.size();
         m_capacity = m_size * 2;
-        m_data = new T[m_capacity];
-        for (size_t i = 0; i < m_size; ++i) {
+        m_data = new value_type[m_capacity];
+        for (size_type i = 0; i < m_size; ++i) {
             m_data[i] = init.begin()[i];
         }
         return *this;
@@ -105,21 +106,22 @@ public:
         delete[] m_data;
     }
 
-    [[nodiscard]] std::size_t size() const { return m_size; }
-    [[nodiscard]] std::size_t max_size() const { return std::numeric_limits<std::size_t>::max() / (sizeof(T) * 2); }
-    [[nodiscard]] std::size_t capacity() const { return m_capacity; }
-    [[nodiscard]] T *data() const { return m_data; }
+    [[nodiscard]] size_type size() const { return m_size; }
+    [[nodiscard]] size_type max_size() const { return std::numeric_limits<size_type>::max() / (sizeof(value_type) * 2); }
+    [[nodiscard]] size_type capacity() const { return m_capacity; }
+    [[nodiscard]] pointer data() { return m_data; }
+    [[nodiscard]] const_pointer data() const { return m_data; }
 
 
-    void resize(const std::size_t count, const T &value = T()) {
+    void resize(const size_type count, const_reference value = value_type()) {
         if (count < m_size) {
             m_size = count;
         } else if (count > m_size) {
             if (count > m_capacity) {
-                const std::size_t new_capacity = std::max(count, m_capacity * 2 + 1);
-                T *new_data = new T[new_capacity];
+                const size_type new_capacity = std::max(count, m_capacity * 2 + 1);
+                auto new_data = new value_type[new_capacity];
 
-                for (std::size_t i = 0; i < m_size; ++i) {
+                for (size_type i = 0; i < m_size; ++i) {
                     new_data[i] = std::move(m_data[i]);
                 }
 
@@ -128,10 +130,9 @@ public:
                 m_capacity = new_capacity;
             }
 
-            for (std::size_t i = m_size; i < count; ++i) {
+            for (size_type i = m_size; i < count; ++i) {
                 m_data[i] = value;
             }
-
             m_size = count;
         }
     }
@@ -150,23 +151,23 @@ public:
     template<class... Args>
     void emplace_back(Args&&... args) {
         if (m_size == m_capacity) resize_data();
-        push_back(T(std::forward<Args>(args)...));
+        push_back(value_type(std::forward<Args>(args)...));
     }
 
-    T &operator[](size_t index) {
+    reference operator[](size_type index) {
         return m_data[index];
     }
 
-    const T &operator[](size_t index) const {
+    const_reference operator[](size_type index) const {
         return m_data[index];
     }
 
-    T &at(std::size_t index) {
+    reference at(size_type index) {
         if (index >= m_size) throw std::out_of_range("Index out of range");
         return m_data[index];
     }
 
-    const T &at(std::size_t index) const {
+    const_reference at(size_type index) const {
         if (index >= m_size) throw std::out_of_range("Index out of range");
         return m_data[index];
     }
@@ -177,10 +178,10 @@ public:
         m_size = 0;
     }
 
-    void reserve(const size_t new_capacity) {
+    void reserve(const size_type new_capacity) {
         if (new_capacity > m_capacity) {
-            T *new_data = new T[new_capacity];
-            for (size_t i = 0; i < m_size; ++i) {
+            auto new_data = new value_type[new_capacity];
+            for (size_type i = 0; i < m_size; ++i) {
                 new_data[i] = m_data[i];
             }
             delete[] m_data;
@@ -192,8 +193,8 @@ public:
     void shrink_to_fit() {
         if (m_size == m_capacity) return;
 
-        T *new_data = new T[m_size];
-        for (size_t i = 0; i < m_size; ++i) {
+        auto new_data = new value_type[m_size];
+        for (size_type i = 0; i < m_size; ++i) {
             new_data[i] = std::move(m_data[i]);
         }
         delete[] m_data;
@@ -201,22 +202,22 @@ public:
         m_capacity = m_size;
     }
 
-    T &front() {
+    reference front() {
         if (m_size == 0) throw std::runtime_error("Vector is empty");
         return m_data[0];
     }
 
-    const T &front() const {
+    const_reference front() const {
         if (m_size == 0) throw std::runtime_error("Vector is empty");
         return m_data[0];
     }
 
-    T &back() {
+    reference back() {
         if (m_size == 0) throw std::runtime_error("Vector is empty");
         return m_data[m_size - 1];
     }
 
-    const T &back() const {
+    const_reference back() const {
         if (m_size == 0) throw std::runtime_error("Vector is empty");
         return m_data[m_size - 1];
     }
@@ -231,7 +232,7 @@ public:
         return iterator(m_data);
     }
 
-    const_iterator begin() const noexcept {
+    const_iterator cbegin() const noexcept {
         return const_iterator(m_data);
     }
 
@@ -239,21 +240,21 @@ public:
         return iterator(m_data + m_size);
     }
 
-    const_iterator end() const noexcept {
+    const_iterator cend() const noexcept {
         return const_iterator(m_data + m_size);
     }
 
 private:
-    T *m_data;
-    std::size_t m_size;
-    std::size_t m_capacity;
+    pointer m_data;
+    size_type m_size;
+    size_type m_capacity;
 
     void resize_data() {
         if (!m_capacity) m_capacity = 4;
         else m_capacity *= 2;
 
-        T *new_data = new T[m_capacity];
-        for (std::size_t i = 0; i < m_size; ++i) {
+        auto new_data = new value_type[m_capacity];
+        for (size_type i = 0; i < m_size; ++i) {
             new_data[i] = m_data[i];
         }
         delete[] m_data;
