@@ -127,6 +127,12 @@ public:
         m_size--;
     }
 
+    template<class... Args>
+    void emplace_back(Args&&... args) {
+        if (m_size == m_capacity) resize_data();
+        push_back(T(std::forward<Args>(args)...));
+    }
+
     T &operator[](size_t index) {
         return m_data[index];
     }
@@ -195,6 +201,12 @@ public:
         return m_data[m_size - 1];
     }
 
+    void swap(Vector& other) noexcept {
+        std::swap(m_data, other.m_data);
+        std::swap(m_size, other.m_size);
+        std::swap(m_capacity, other.m_capacity);
+    }
+
 private:
     T *m_data;
     std::size_t m_size;
@@ -212,3 +224,8 @@ private:
         m_data = new_data;
     }
 };
+
+template <typename T>
+void swap(Vector<T>& lhs, Vector<T>& rhs) noexcept {
+    lhs.swap(rhs);
+}
