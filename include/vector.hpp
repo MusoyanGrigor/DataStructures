@@ -3,21 +3,21 @@
 #include <limits>
 #include <stdexcept>
 
-template <typename T>
+template<typename T>
 class Vector {
 public:
     Vector() : m_size(0), m_capacity(4) {
         m_data = new T[m_capacity];
     }
 
-    Vector(const Vector& other) : m_size(other.m_size), m_capacity(other.m_capacity) {
+    Vector(const Vector &other) : m_size(other.m_size), m_capacity(other.m_capacity) {
         m_data = new T[m_capacity];
         for (size_t i = 0; i < m_size; ++i) {
             m_data[i] = other.m_data[i];
         }
     }
 
-    Vector(Vector&& other) noexcept : m_size(other.m_size), m_capacity(other.m_capacity) {
+    Vector(Vector &&other) noexcept : m_size(other.m_size), m_capacity(other.m_capacity) {
         m_data = other.m_data;
         other.m_size = 0;
         other.m_capacity = 0;
@@ -37,14 +37,14 @@ public:
         m_data = new T[m_capacity]();
     }
 
-    explicit Vector(const std::size_t count, const T& value) : m_size(count), m_capacity(count) {
+    explicit Vector(const std::size_t count, const T &value) : m_size(count), m_capacity(count) {
         m_data = new T[m_capacity];
         for (size_t i = 0; i < m_size; ++i) {
             m_data[i] = value;
         }
     }
 
-    Vector& operator=(const Vector& other) {
+    Vector &operator=(const Vector &other) {
         if (this != &other) {
             delete[] m_data;
             m_size = other.m_size;
@@ -57,7 +57,7 @@ public:
         return *this;
     }
 
-    Vector& operator=(Vector&& other) noexcept {
+    Vector &operator=(Vector &&other) noexcept {
         if (this != &other) {
             delete[] m_data;
             m_size = other.m_size;
@@ -70,15 +70,13 @@ public:
         return *this;
     }
 
-    Vector& operator=(const std::initializer_list<T>& init) {
-        if (this != &init) {
-            delete[] m_data;
-            m_size = init.size();
-            m_capacity = m_size * 2;
-            m_data = new T[m_capacity];
-            for (size_t i = 0; i < m_size; ++i) {
-                m_data[i] = init.begin()[i];
-            }
+    Vector &operator=(const std::initializer_list<T> &init) {
+        delete[] m_data;
+        m_size = init.size();
+        m_capacity = m_size * 2;
+        m_data = new T[m_capacity];
+        for (size_t i = 0; i < m_size; ++i) {
+            m_data[i] = init.begin()[i];
         }
         return *this;
     }
@@ -90,16 +88,16 @@ public:
     [[nodiscard]] std::size_t size() const { return m_size; }
     [[nodiscard]] std::size_t max_size() const { return std::numeric_limits<std::size_t>::max() / (sizeof(T) * 2); }
     [[nodiscard]] std::size_t capacity() const { return m_capacity; }
-    [[nodiscard]] T* data() const { return m_data; }
+    [[nodiscard]] T *data() const { return m_data; }
 
 
-    void resize(const std::size_t count, const T& value = T()) {
+    void resize(const std::size_t count, const T &value = T()) {
         if (count < m_size) {
             m_size = count;
         } else if (count > m_size) {
             if (count > m_capacity) {
                 const std::size_t new_capacity = std::max(count, m_capacity * 2 + 1);
-                T* new_data = new T[new_capacity];
+                T *new_data = new T[new_capacity];
 
                 for (std::size_t i = 0; i < m_size; ++i) {
                     new_data[i] = std::move(m_data[i]);
@@ -118,8 +116,8 @@ public:
         }
     }
 
-    template <typename U>
-    void push_back(U&& value) {
+    template<typename U>
+    void push_back(U &&value) {
         if (m_size == m_capacity) resize_data();
         m_data[m_size++] = std::forward<U>(value);
     }
@@ -129,20 +127,20 @@ public:
         m_size--;
     }
 
-    T& operator[](size_t index) {
+    T &operator[](size_t index) {
         return m_data[index];
     }
 
-    const T& operator[](size_t index) const {
+    const T &operator[](size_t index) const {
         return m_data[index];
     }
 
-    T& at(std::size_t index) {
+    T &at(std::size_t index) {
         if (index >= m_size) throw std::out_of_range("Index out of range");
         return m_data[index];
     }
 
-    const T& at(std::size_t index) const {
+    const T &at(std::size_t index) const {
         if (index >= m_size) throw std::out_of_range("Index out of range");
         return m_data[index];
     }
@@ -155,7 +153,7 @@ public:
 
     void reserve(const size_t new_capacity) {
         if (new_capacity > m_capacity) {
-            T* new_data = new T[new_capacity];
+            T *new_data = new T[new_capacity];
             for (size_t i = 0; i < m_size; ++i) {
                 new_data[i] = m_data[i];
             }
@@ -168,7 +166,7 @@ public:
     void shrink_to_fit() {
         if (m_size == m_capacity) return;
 
-        T* new_data = new T[m_size];
+        T *new_data = new T[m_size];
         for (size_t i = 0; i < m_size; ++i) {
             new_data[i] = std::move(m_data[i]);
         }
@@ -177,29 +175,28 @@ public:
         m_capacity = m_size;
     }
 
-    T& front() {
+    T &front() {
         if (m_size == 0) throw std::runtime_error("Vector is empty");
         return m_data[0];
     }
 
-    const T& front() const {
+    const T &front() const {
         if (m_size == 0) throw std::runtime_error("Vector is empty");
         return m_data[0];
     }
 
-    T& back() {
+    T &back() {
         if (m_size == 0) throw std::runtime_error("Vector is empty");
         return m_data[m_size - 1];
     }
 
-    const T& back() const {
+    const T &back() const {
         if (m_size == 0) throw std::runtime_error("Vector is empty");
         return m_data[m_size - 1];
     }
-
 
 private:
-    T* m_data;
+    T *m_data;
     std::size_t m_size;
     std::size_t m_capacity;
 
@@ -207,7 +204,7 @@ private:
         if (!m_capacity) m_capacity = 4;
         else m_capacity *= 2;
 
-        T* new_data = new T[m_capacity];
+        T *new_data = new T[m_capacity];
         for (std::size_t i = 0; i < m_size; ++i) {
             new_data[i] = m_data[i];
         }
