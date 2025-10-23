@@ -196,8 +196,17 @@ public:
         return m_ptr[n];
     }
 
-    bool operator<=>(const Random_access_iterator &other) const = default;
+    bool operator<=>(const Random_access_iterator &other) const {
+        return m_ptr <=> other.m_ptr;
+    }
 
+    bool operator==(const Random_access_iterator &other) const {
+        return m_ptr == other.m_ptr;
+    }
+
+    bool operator!=(const Random_access_iterator &other) const {
+        return m_ptr != other.m_ptr;
+    }
 private:
     T *m_ptr;
 };
