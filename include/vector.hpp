@@ -3,9 +3,20 @@
 #include <limits>
 #include <stdexcept>
 
+#include "iterator.hpp"
+
 template<typename T>
 class Vector {
 public:
+    using value_type = T;
+    using pointer = T*;
+    using const_pointer = const T*;
+    using reference = T&;
+    using const_reference = const T&;
+    using size_type = std::size_t;
+    using iterator = Random_access_iterator<T>;
+    using const_iterator = Random_access_iterator<const T>;
+
     Vector() : m_size(0), m_capacity(4) {
         m_data = new T[m_capacity];
     }
@@ -41,6 +52,15 @@ public:
         m_data = new T[m_capacity];
         for (size_t i = 0; i < m_size; ++i) {
             m_data[i] = value;
+        }
+    }
+
+    explicit Vector(iterator begin, iterator end) {
+        m_size = 0;
+        m_capacity = (end - begin) * 2;
+        m_data = new T[m_capacity];
+        for (auto it = begin; it != end; ++it) {
+            m_data[m_size++] = *it;
         }
     }
 
@@ -205,6 +225,22 @@ public:
         std::swap(m_data, other.m_data);
         std::swap(m_size, other.m_size);
         std::swap(m_capacity, other.m_capacity);
+    }
+
+    iterator begin() noexcept {
+        return iterator(m_data);
+    }
+
+    const_iterator begin() const noexcept {
+        return const_iterator(m_data);
+    }
+
+    iterator end() noexcept {
+        return iterator(m_data + m_size);
+    }
+
+    const_iterator end() const noexcept {
+        return const_iterator(m_data + m_size);
     }
 
 private:
