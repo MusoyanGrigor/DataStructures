@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <limits>
+#include <random>
 #include <stdexcept>
 
 #include "iterator.hpp"
@@ -69,6 +70,25 @@ public:
         m_data = new value_type[m_capacity];
         for (auto it = begin; it != end; ++it) {
             m_data[m_size++] = *it;
+        }
+    }
+
+    Vector(const size_type size, std::pair<T, T> range) : m_size(size), m_capacity(size * 2) {
+        m_data = new value_type[m_capacity];
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        if constexpr(std::is_integral_v<T>) {
+            std::uniform_int_distribution<T> dis(range.first, range.second);
+            for (size_type i = 0; i < m_size; ++i) {
+                m_data[i] = dis(gen);
+            }
+        } else if constexpr(std::is_floating_point_v<T>) {
+            std::uniform_real_distribution<T> dis(range.first, range.second);
+            for (size_type i = 0; i < m_size; ++i) {
+                m_data[i] = dis(gen);
+            }
+        } else {
+            throw std::invalid_argument("Vector size must be integer or floating point type");
         }
     }
 
