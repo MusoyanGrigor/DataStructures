@@ -348,7 +348,7 @@ public:
         size_type index = first - cbegin();
         const size_type count = last - first;
 
-        if (!count) iterator(m_data + index);
+        if (!count) return iterator(m_data + index);
 
         for (size_type i = index; i + count < m_size; ++i) {
             m_data[i] = std::move(m_data[i + count]);
@@ -359,9 +359,6 @@ public:
     }
 
     void clear() {
-        for (size_type i = 0; i < m_size; ++i) {
-            m_data[i].~value_type();
-        }
         m_size = 0;
     }
 
@@ -469,7 +466,7 @@ private:
     size_type m_capacity;
 
     // Helper function to resize internal storage
-    void resize_data(const size_type min_capacity = 4) {
+    void resize_data(const size_type min_capacity = 0) {
         if (m_capacity == 0) m_capacity = 4;
 
         while (m_capacity < min_capacity) {
