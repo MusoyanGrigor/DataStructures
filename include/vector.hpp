@@ -423,6 +423,20 @@ public:
         return const_iterator(m_data + m_size);
     }
 
+    // relational operators
+    auto operator<=>(const Vector& other) const {
+        return std::lexicographical_compare_three_way(m_data, m_data + m_size,
+            other.m_data, other.m_data + other.m_size);
+    }
+
+    bool operator==(const Vector& other) const {
+        return (*this <=> other) == 0;
+    }
+
+    bool operator!=(const Vector& other) const {
+        return !(*this == other);
+    }
+
 private:
     pointer m_data;
     size_type m_size;
