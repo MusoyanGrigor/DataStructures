@@ -306,10 +306,53 @@ public:
         }
     }
 
-    template<class... Args>
+    template <typename... Args>
+    void emplace(const_iterator pos, Args&&... args) {
+        const size_type index = pos - cbegin();
+        if (index > m_size) throw std::out_of_range("Index out of range");
+        if (m_size == m_capacity) resize_data(m_size * 2);
+
+        for (size_type i = m_size; i > index; --i) {
+            m_data[i] = std::move(m_data[i - 1]);
+        }
+
+        m_data[index] = value_type(std::forward<Args>(args)...);
+        ++m_size;
+    }
+
+    template <typename... Args>
     void emplace_back(Args&&... args) {
         if (m_size == m_capacity) resize_data(m_size * 2);
         push_back(value_type(std::forward<Args>(args)...));
+    }
+
+    iterator erase(const_iterator pos) {
+        size_type index = pos - cbegin();
+        if (index > m_size) throw std::out_of_range("Index out of range");
+
+        for (size_type i = index; i < m_size - 1; ++i) {
+            m_data[i] = std::move(m_data[i + 1]);
+        }
+
+        --m_size;
+        return iterator(m_data + index);
+    }
+
+    iterator erase(const_iterator first, const_iterator last) {
+        if (first > last || first < cbegin() || last > cend())
+            throw std::out_of_range("Index out of range");
+
+        size_type index = first - cbegin();
+        const size_type count = last - first;
+
+        if (!count) iterator(m_data + index);
+
+        for (size_type i = index; i + count < m_size; ++i) {
+            m_data[i] = std::move(m_data[i + count]);
+        }
+        m_size -= count;
+
+        return iterator(m_data + index);
     }
 
     void clear() {
