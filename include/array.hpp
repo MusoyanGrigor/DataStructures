@@ -199,7 +199,7 @@ private:
     value_type m_data[N];
 };
 
-template <typename T>
-void swap(Array<T>& lhs, Array<T>& rhs) noexcept {
+template <typename T, std::size_t N>
+void swap(Array<T, N>& lhs, Array<T, N>& rhs) noexcept {
     lhs.swap(rhs);
 }
