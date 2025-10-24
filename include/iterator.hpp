@@ -19,10 +19,10 @@ public:
         return *this;
     }
 
-    Input_iterator &operator++(int) {
+    Input_iterator operator++(int) {
         Input_iterator tmp = *this;
         ++(*this);
-        return *tmp;
+        return tmp;
     }
 
     bool operator==(const Input_iterator &other) const {
@@ -49,7 +49,7 @@ public:
         return *this;
     }
 
-    Output_iterator &operator*() const {
+    T &operator*() const {
         return *m_ptr;
     }
 
@@ -58,10 +58,10 @@ public:
         return *this;
     }
 
-    Output_iterator &operator++(int) {
+    Output_iterator operator++(int) {
         Output_iterator tmp = *this;
         ++(*this);
-        return *tmp;
+        return tmp;
     }
 
 private:
@@ -84,10 +84,10 @@ public:
         return *this;
     }
 
-    Forward_iterator &operator++(int) {
+    Forward_iterator operator++(int) {
         Forward_iterator tmp = *this;
         ++(*this);
-        return *tmp;
+        return tmp;
     }
 
     bool operator==(const Forward_iterator &other) const {
@@ -118,10 +118,10 @@ public:
         return *this;
     }
 
-    Bidirectional_iterator &operator++(int) {
-        Forward_iterator tmp = *this;
+    Bidirectional_iterator operator++(int) {
+        Bidirectional_iterator tmp = *this;
         ++(*this);
-        return *tmp;
+        return tmp;
     }
 
     Bidirectional_iterator &operator--() {
@@ -129,10 +129,10 @@ public:
         return *this;
     }
 
-    Bidirectional_iterator &operator--(int) {
+    Bidirectional_iterator operator--(int) {
         Bidirectional_iterator tmp = *this;
         --(*this);
-        return *tmp;
+        return tmp;
     }
 
     bool operator==(const Bidirectional_iterator &other) const {
@@ -163,10 +163,10 @@ public:
         return *this;
     }
 
-    Random_access_iterator &operator++(int) {
+    Random_access_iterator operator++(int) {
         Random_access_iterator tmp = *this;
         ++(*this);
-        return *tmp;
+        return tmp;
     }
 
     Random_access_iterator &operator--() {
@@ -174,17 +174,17 @@ public:
         return *this;
     }
 
-    Random_access_iterator &operator--(int) {
+    Random_access_iterator operator--(int) {
         Random_access_iterator tmp = *this;
         --(*this);
-        return *tmp;
+        return tmp;
     }
 
-    Random_access_iterator &operator+(std::ptrdiff_t n) const {
+    Random_access_iterator operator+(std::ptrdiff_t n) const {
         return Random_access_iterator(m_ptr + n);
     }
 
-    Random_access_iterator &operator-(std::ptrdiff_t n) const {
+    Random_access_iterator operator-(std::ptrdiff_t n) const {
         return Random_access_iterator(m_ptr - n);
     }
 
@@ -222,4 +222,130 @@ public:
 
 private:
     T *m_ptr;
+};
+
+template<typename T>
+class Reverse_bidirectional_iterator : public Iterator<bidirectional_iterator_tag, T> {
+public:
+    explicit Reverse_bidirectional_iterator(T *p = nullptr) : m_ptr(p) {
+    }
+
+    T &operator*() const {
+        return *(m_ptr - 1);
+    }
+
+    Reverse_bidirectional_iterator &operator++() {
+        --m_ptr;
+        return *this;
+    }
+
+    Reverse_bidirectional_iterator operator++(int) {
+        Reverse_bidirectional_iterator tmp = *this;
+        --(*this);
+        return tmp;
+    }
+
+    Reverse_bidirectional_iterator &operator--() {
+        ++m_ptr;
+        return *this;
+    }
+
+    Reverse_bidirectional_iterator operator--(int) {
+        Reverse_bidirectional_iterator tmp = *this;
+        ++(*this);
+        return tmp;
+    }
+
+    T* operator->() const {
+        return m_ptr - 1;
+    }
+
+    bool operator==(const Reverse_bidirectional_iterator &other) const {
+        return m_ptr == other.m_ptr;
+    }
+
+    bool operator!=(const Reverse_bidirectional_iterator &other) const {
+        return m_ptr != other.m_ptr;
+    }
+
+private:
+    T *m_ptr;
+};
+
+template <typename T>
+class Reverse_random_access_iterator {
+public:
+    explicit Reverse_random_access_iterator(T *p = nullptr) : m_ptr(p) {}
+
+    T &operator*() const {
+        return *(m_ptr - 1);
+    }
+
+    Reverse_random_access_iterator &operator++() {
+        --m_ptr;
+        return *this;
+    }
+
+    Reverse_random_access_iterator operator++(int) {
+        Reverse_random_access_iterator tmp = *this;
+        --(*this);
+        return tmp;
+    }
+
+    Reverse_random_access_iterator &operator--() {
+        ++m_ptr;
+        return *this;
+    }
+
+    Reverse_random_access_iterator operator--(int) {
+        Reverse_random_access_iterator tmp = *this;
+        --(*this);
+        return tmp;
+    }
+
+    Reverse_random_access_iterator operator+(std::ptrdiff_t n) const {
+        return Reverse_random_access_iterator(m_ptr - n);
+    }
+
+    Reverse_random_access_iterator operator-(std::ptrdiff_t n) const {
+        return Reverse_random_access_iterator(m_ptr + n);
+    }
+
+    std::ptrdiff_t operator-(const Reverse_random_access_iterator &other) const {
+        return other.m_ptr - m_ptr;
+    }
+
+    T& operator[](std::ptrdiff_t n) const {
+        return *(*this + n);
+    }
+
+    T* operator->() const { return m_ptr - 1; }
+
+    bool operator<(const Reverse_random_access_iterator &other) const {
+        return m_ptr > other.m_ptr;
+    }
+
+    bool operator<=(const Reverse_random_access_iterator &other) const {
+        return m_ptr >= other.m_ptr;
+    }
+
+    bool operator>(const Reverse_random_access_iterator &other) const {
+        return m_ptr < other.m_ptr;
+    }
+
+    bool operator>=(const Reverse_random_access_iterator &other) const {
+        return m_ptr <= other.m_ptr;
+    }
+
+    bool operator==(const Reverse_random_access_iterator &other) const {
+        return m_ptr == other.m_ptr;
+    }
+
+    bool operator!=(const Reverse_random_access_iterator &other) const {
+        return m_ptr != other.m_ptr;
+    }
+
+
+private:
+    T* m_ptr;
 };
