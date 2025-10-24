@@ -12,10 +12,10 @@ template<typename T>
 class Vector {
 public:
     using value_type = T;
-    using pointer = T*;
-    using const_pointer = const T*;
-    using reference = T&;
-    using const_reference = const T&;
+    using pointer = T *;
+    using const_pointer = const T *;
+    using reference = T &;
+    using const_reference = const T &;
     using size_type = std::size_t;
     using iterator = Random_access_iterator<T>;
     using const_iterator = Random_access_iterator<const T>;
@@ -54,14 +54,15 @@ public:
         m_data = new value_type[m_capacity]();
     }
 
-    explicit Vector(const size_type count,  const_reference value) : m_size(count), m_capacity(count) {
+    explicit Vector(const size_type count, const_reference value) : m_size(count), m_capacity(count) {
         m_data = new value_type[m_capacity];
         for (size_type i = 0; i < m_size; ++i) {
             m_data[i] = value;
         }
     }
 
-    template <typename InputIt>
+    template<typename InputIt, typename = std::enable_if_t<std::is_base_of_v<std::input_iterator_tag,
+        typename std::iterator_traits<InputIt>::iterator_category> > >
     explicit Vector(InputIt begin, InputIt end) {
         m_size = 0;
         m_capacity = it::distance(begin, end) * 2;
@@ -164,7 +165,11 @@ public:
     // Capacity & size
     [[nodiscard]] bool empty() const { return m_size == 0; }
     [[nodiscard]] size_type size() const { return m_size; }
-    [[nodiscard]] size_type max_size() const { return std::numeric_limits<size_type>::max() / (sizeof(value_type) * 2); }
+
+    [[nodiscard]] size_type max_size() const {
+        return std::numeric_limits<size_type>::max() / (sizeof(value_type) * 2);
+    }
+
     [[nodiscard]] size_type capacity() const { return m_capacity; }
 
     void reserve(const size_type new_capacity) {
@@ -216,7 +221,7 @@ public:
         ++m_size;
     }
 
-    void insert(const_iterator pos, value_type&& value) {
+    void insert(const_iterator pos, value_type &&value) {
         const size_type index = pos - cbegin();
         if (index > m_size) throw std::out_of_range("Index out of range");
         if (m_size == m_capacity) resize_data(m_size * 2);
@@ -246,7 +251,8 @@ public:
         m_size += count;
     }
 
-    template <typename InputIt>
+    template<typename InputIt, typename = std::enable_if_t<std::is_base_of_v<std::input_iterator_tag,
+        typename std::iterator_traits<InputIt>::iterator_category> > >
     void insert(const_iterator pos, InputIt first, InputIt last) {
         const size_type count = it::distance(first, last);
         if (count == 0) return;
@@ -309,8 +315,8 @@ public:
         }
     }
 
-    template <typename... Args>
-    void emplace(const_iterator pos, Args&&... args) {
+    template<typename... Args>
+    void emplace(const_iterator pos, Args &&... args) {
         const size_type index = pos - cbegin();
         if (index > m_size) throw std::out_of_range("Index out of range");
         if (m_size == m_capacity) resize_data(m_size * 2);
@@ -323,8 +329,8 @@ public:
         ++m_size;
     }
 
-    template <typename... Args>
-    void emplace_back(Args&&... args) {
+    template<typename... Args>
+    void emplace_back(Args &&... args) {
         if (m_size == m_capacity) resize_data(m_size * 2);
         push_back(value_type(std::forward<Args>(args)...));
     }
@@ -372,18 +378,15 @@ public:
         m_size = count;
     }
 
-    template <typename InputIt>
+    template<typename InputIt, typename = std::enable_if_t<std::is_base_of_v<std::input_iterator_tag,
+        typename std::iterator_traits<InputIt>::iterator_category> > >
     void assign(InputIt first, InputIt last) {
-        if constexpr(!std::is_integral_v<InputIt>) {
-            clear();
-            auto count = std::distance(first, last);
-            if (count > m_size) resize_data(count);
+        clear();
+        auto count = std::distance(first, last);
+        if (count > m_size) resize_data(count);
 
-            for (auto it = first; it != last; ++it) {
-                m_data[m_size++] = *it;
-            }
-        } else {
-            assign(static_cast<size_type>(first), static_cast<const_reference>(last));
+        for (auto it = first; it != last; ++it) {
+            m_data[m_size++] = *it;
         }
     }
 
@@ -391,7 +394,7 @@ public:
         assign(i_list.begin(), i_list.end());
     }
 
-    void swap(Vector& other) noexcept {
+    void swap(Vector &other) noexcept {
         std::swap(m_data, other.m_data);
         std::swap(m_size, other.m_size);
         std::swap(m_capacity, other.m_capacity);
@@ -447,16 +450,16 @@ public:
     }
 
     // relational operators
-    auto operator<=>(const Vector& other) const {
+    auto operator<=>(const Vector &other) const {
         return std::lexicographical_compare_three_way(m_data, m_data + m_size,
-            other.m_data, other.m_data + other.m_size);
+                                                      other.m_data, other.m_data + other.m_size);
     }
 
-    bool operator==(const Vector& other) const {
+    bool operator==(const Vector &other) const {
         return (*this <=> other) == 0;
     }
 
-    bool operator!=(const Vector& other) const {
+    bool operator!=(const Vector &other) const {
         return !(*this == other);
     }
 
@@ -483,7 +486,7 @@ private:
     }
 };
 
-template <typename T>
-void swap(Vector<T>& lhs, Vector<T>& rhs) noexcept {
+template<typename T>
+void swap(Vector<T> &lhs, Vector<T> &rhs) noexcept {
     lhs.swap(rhs);
 }
