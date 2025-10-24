@@ -60,6 +60,9 @@ public:
         return *this;
     }
 
+    // Destructor
+    ~Array() = default;
+
     // Element access
     reference operator[](size_type index) {
         return m_data[index];
@@ -103,8 +106,19 @@ public:
         return m_data;
     }
 
-    // Destructor
-    ~Array() = default;
+    // Size
+    [[nodiscard]] constexpr bool empty() const noexcept {
+        return N == 0;
+    }
+
+    [[nodiscard]] constexpr size_type size() const noexcept {
+        return N;
+    }
+
+    [[nodiscard]] constexpr size_type max_size() const noexcept {
+        return N;
+    }
+
 
 private:
     value_type m_data[N];
