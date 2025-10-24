@@ -198,3 +198,8 @@ public:
 private:
     value_type m_data[N];
 };
+
+template <typename T>
+void swap(Array<T>& lhs, Array<T>& rhs) noexcept {
+    lhs.swap(rhs);
+}
