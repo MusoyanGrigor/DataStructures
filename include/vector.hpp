@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <limits>
 #include <stdexcept>
@@ -360,6 +361,35 @@ public:
             m_data[i].~value_type();
         }
         m_size = 0;
+    }
+
+    void assign(const size_type count, const_reference value) {
+        clear();
+        if (count > m_size) resize_data(count);
+
+        for (size_type i = 0; i < count; ++i) {
+            m_data[i] = value;
+        }
+        m_size = count;
+    }
+
+    template <typename InputIt>
+    void assign(InputIt first, InputIt last) {
+        if constexpr(!std::is_integral_v<InputIt>) {
+            clear();
+            auto count = std::distance(first, last);
+            if (count > m_size) resize_data(count);
+
+            for (auto it = first; it != last; ++it) {
+                m_data[m_size++] = *it;
+            }
+        } else {
+            assign(static_cast<size_type>(first), static_cast<const_reference>(last));
+        }
+    }
+
+    void assign(std::initializer_list<value_type> i_list) {
+        assign(i_list.begin(), i_list.end());
     }
 
     void swap(Vector& other) noexcept {
