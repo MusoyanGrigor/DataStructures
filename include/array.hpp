@@ -119,6 +119,18 @@ public:
         return N;
     }
 
+    // Operations
+    void fill(const_reference value) {
+        for (size_type i = 0; i < N; ++i) {
+            m_data[i] = value;
+        }
+    }
+
+    void swap(Array& other) noexcept(noexcept(swap(std::declval<reference>(), std::declval<reference>()))) {
+        for (size_type i = 0; i < N; ++i) {
+            std::swap(m_data[i], other.m_data[i]);
+        }
+    }
 
 private:
     value_type m_data[N];
