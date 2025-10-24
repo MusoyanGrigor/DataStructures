@@ -19,6 +19,8 @@ public:
     using size_type = std::size_t;
     using iterator = Random_access_iterator<T>;
     using const_iterator = Random_access_iterator<const T>;
+    using reverse_iterator = Reverse_random_access_iterator<T>;
+    using const_reverse_iterator = Reverse_random_access_iterator<const T>;
 
     // Constructors
     Vector() : m_size(0), m_capacity(4) {
@@ -223,7 +225,7 @@ public:
             m_data[i] = std::move(m_data[i - 1]);
         }
 
-        m_data[index] = value;
+        m_data[index] = std::move(value);
         ++m_size;
     }
 
@@ -421,6 +423,30 @@ public:
 
     const_iterator cend() const noexcept {
         return const_iterator(m_data + m_size);
+    }
+
+    reverse_iterator rbegin() noexcept {
+        return reverse_iterator(m_data + m_size);
+    }
+
+    const_reverse_iterator rbegin() const noexcept {
+        return const_reverse_iterator(m_data + m_size);
+    }
+
+    const_reverse_iterator crbegin() const noexcept {
+        return const_reverse_iterator(m_data + m_size);
+    }
+
+    reverse_iterator rend() noexcept {
+        return reverse_iterator(m_data);
+    }
+
+    const_reverse_iterator rend() const noexcept {
+        return const_reverse_iterator(m_data);
+    }
+
+    const_reverse_iterator crend() const noexcept {
+        return const_reverse_iterator(m_data);
     }
 
     // relational operators
