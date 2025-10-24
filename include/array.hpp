@@ -126,7 +126,7 @@ public:
         }
     }
 
-    void swap(Array& other) noexcept(noexcept(swap(std::declval<reference>(), std::declval<reference>()))) {
+    void swap(Array& other) noexcept {
         for (size_type i = 0; i < N; ++i) {
             std::swap(m_data[i], other.m_data[i]);
         }
@@ -179,6 +179,20 @@ public:
 
     const_reverse_iterator crend() const noexcept {
         return const_reverse_iterator(m_data);
+    }
+
+    // Relational operators
+    auto operator<=>(const Array &other) const {
+        return std::lexicographical_compare_three_way(m_data, m_data + N,
+                                                      other.m_data, other.m_data + N);
+    }
+
+    bool operator==(const Array& other) const {
+        return (*this <=> other) == 0;
+    }
+
+    bool operator!=(const Array& other) const {
+        return !(*this == other);
     }
 
 private:
