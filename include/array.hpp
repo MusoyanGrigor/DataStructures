@@ -1,6 +1,8 @@
 #pragma once
 
 #include <iostream>
+#include <random>
+
 #include "iterator.hpp"
 
 template <typename T, std::size_t N>
@@ -38,6 +40,24 @@ public:
         }
         for (size_type i = 0; i < N; ++i) {
             m_data[i] = init.begin()[i];
+        }
+    }
+
+    explicit Array(T min, T max) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        if constexpr (std::is_integral_v<T>) {
+            std::uniform_int_distribution<T> dist(min, max);
+            for (size_type i = 0; i < N; ++i) {
+                m_data[i] = dist(gen);
+            }
+        } else if constexpr(std::is_floating_point_v<T>) {
+            std::uniform_real_distribution<T> dist(min, max);
+            for (size_type i = 0; i < N; ++i) {
+                m_data[i] = dist(gen);
+            }
+        } else {
+            throw std::invalid_argument("Invalid array type");
         }
     }
 
