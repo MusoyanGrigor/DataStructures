@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 #include "iterator.hpp"
+#include "algorithm.hpp"
 
 template<typename T>
 class Vector {
@@ -57,9 +58,10 @@ public:
         }
     }
 
-    explicit Vector(iterator begin, iterator end) {
+    template <typename InputIt>
+    explicit Vector(InputIt begin, InputIt end) {
         m_size = 0;
-        m_capacity = (end - begin) * 2;
+        m_capacity = it::distance(begin, end) * 2;
         m_data = new value_type[m_capacity];
         for (auto it = begin; it != end; ++it) {
             m_data[m_size++] = *it;
@@ -188,14 +190,96 @@ public:
 
     // Modifiers
     template<typename U>
-        void push_back(U &&value) {
-        if (m_size == m_capacity) resize_data();
+    void push_back(U &&value) {
+        if (m_size == m_capacity) resize_data(m_size * 2);
         m_data[m_size++] = std::forward<U>(value);
     }
 
     void pop_back() {
         if (m_size == 0) throw std::runtime_error("Vector is empty");
         m_size--;
+    }
+
+    void insert(const_iterator pos, const_reference value) {
+        const size_type index = pos - cbegin();
+        if (index > m_size) throw std::out_of_range("Index out of range");
+        if (m_size == m_capacity) resize_data(m_size * 2);
+
+        for (size_type i = m_size; i > index; --i) {
+            m_data[i] = std::move(m_data[i - 1]);
+        }
+
+        m_data[index] = value;
+        ++m_size;
+    }
+
+    void insert(const_iterator pos, value_type&& value) {
+        const size_type index = pos - cbegin();
+        if (index > m_size) throw std::out_of_range("Index out of range");
+        if (m_size == m_capacity) resize_data(m_size * 2);
+
+        for (size_type i = m_size; i > index; --i) {
+            m_data[i] = std::move(m_data[i - 1]);
+        }
+
+        m_data[index] = value;
+        ++m_size;
+    }
+
+    void insert(const_iterator pos, const size_type count, const_reference value) {
+        if (count == 0) return;
+
+        const size_type index = pos - cbegin();
+        if (index > m_size) throw std::out_of_range("Index out of range");
+        if (m_size + count > m_capacity) resize_data(m_size + count);
+
+        for (size_type i = m_size; i > index; --i) {
+            m_data[i + count - 1] = std::move(m_data[i - 1]);
+        }
+
+        for (size_type i = 0; i < count; ++i) {
+            m_data[index + i] = value;
+        }
+        m_size += count;
+    }
+
+    template <typename InputIt>
+    void insert(const_iterator pos, InputIt first, InputIt last) {
+        const size_type count = it::distance(first, last);
+        if (count == 0) return;
+
+        const size_type index = pos - cbegin();
+        if (index > m_size) throw std::out_of_range("Index out of range");
+        if (m_size + count > m_capacity) resize_data(m_size + count);
+
+        for (size_type i = m_size; i > index; --i) {
+            m_data[i + count - 1] = std::move(m_data[i - 1]);
+        }
+
+        size_type j = 0;
+        for (auto it = first; it != last; ++it) {
+            m_data[index + j++] = *it;
+        }
+        m_size += count;
+    }
+
+    void insert(const_iterator pos, std::initializer_list<T> i_list) {
+        const size_type count = i_list.size();
+        if (count == 0) return;
+
+        const size_type index = pos - cbegin();
+        if (index > m_size) throw std::out_of_range("Index out of range");
+        if (m_size + count > m_capacity) resize_data(m_size + count);
+
+        for (size_type i = m_size; i > index; --i) {
+            m_data[i + count - 1] = std::move(m_data[i - 1]);
+        }
+
+        size_type j = 0;
+        for (size_type i = 0; i < count; ++i) {
+            m_data[index + i] = i_list.begin()[j++];
+        }
+        m_size += count;
     }
 
     void resize(const size_type count, const_reference value = value_type()) {
@@ -224,11 +308,14 @@ public:
 
     template<class... Args>
     void emplace_back(Args&&... args) {
-        if (m_size == m_capacity) resize_data();
+        if (m_size == m_capacity) resize_data(m_size * 2);
         push_back(value_type(std::forward<Args>(args)...));
     }
 
     void clear() {
+        for (size_type i = 0; i < m_size; ++i) {
+            m_data[i].~value_type();
+        }
         m_size = 0;
     }
 
@@ -243,12 +330,20 @@ public:
         return iterator(m_data);
     }
 
+    const_iterator begin() const noexcept {
+        return const_iterator(m_data);
+    }
+
     const_iterator cbegin() const noexcept {
         return const_iterator(m_data);
     }
 
     iterator end() noexcept {
         return iterator(m_data + m_size);
+    }
+
+    const_iterator end() const noexcept {
+        return const_iterator(m_data + m_size);
     }
 
     const_iterator cend() const noexcept {
@@ -260,14 +355,19 @@ private:
     size_type m_size;
     size_type m_capacity;
 
-    void resize_data() {
-        if (!m_capacity) m_capacity = 4;
-        else m_capacity *= 2;
+    // Helper function to resize internal storage
+    void resize_data(const size_type min_capacity = 4) {
+        if (m_capacity == 0) m_capacity = 4;
+
+        while (m_capacity < min_capacity) {
+            m_capacity *= 2;
+        }
 
         auto new_data = new value_type[m_capacity];
-        for (size_type i = 0; i < m_size; ++i) {
-            new_data[i] = m_data[i];
-        }
+
+        for (size_type i = 0; i < m_size; ++i)
+            new_data[i] = std::move(m_data[i]);
+
         delete[] m_data;
         m_data = new_data;
     }
