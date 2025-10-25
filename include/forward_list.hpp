@@ -1,0 +1,8 @@
+//
+// Created by grigor on 10/25/25.
+//
+
+#ifndef DATASTRUCTURES_FORWARD_LIST_H
+#define DATASTRUCTURES_FORWARD_LIST_H
+
+#endif //DATASTRUCTURES_FORWARD_LIST_H
