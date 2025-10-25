@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstddef>
+#include <initializer_list>
 
 #include "node.hpp"
 
@@ -9,9 +9,69 @@ class Forward_list {
 public:
     Forward_list() : m_head(nullptr), m_size(0) {}
 
-    ~Forward_list() {
-        clear_data();
+    Forward_list(const Forward_list& other) : m_head(nullptr), m_size(0) {
+        auto current = other.m_head;
+        while (current) {
+            push_back(current->value);
+            current = current->next;
+        }
     }
+
+    Forward_list(Forward_list&& other) noexcept : m_head(other.m_head), m_size(other.m_size) {
+        other.m_head = nullptr;
+        other.m_size = 0;
+    }
+
+    Forward_list(std::initializer_list<T> i_list) {
+        for (auto it = i_list.crbegin(); it != i_list.crend(); ++it) {
+            push_front(*it);
+        }
+    }
+
+    explicit Forward_list(const std::size_t count) {
+        for (std::size_t i = 0; i < count; ++i) {
+            push_front(T());
+        }
+    }
+
+    explicit Forward_list(std::size_t count, const T& value) {
+        for (std::size_t i = 0; i < count; ++i) {
+            push_back(value);
+        }
+    }
+
+    Forward_list& operator=(const Forward_list& other) {
+        if (this != &other) {
+            clear_data();
+            auto current = other.m_head;
+            while (current) {
+                push_back(current->value);
+                current = current->next;
+            }
+        }
+        return *this;
+    }
+
+    Forward_list& operator=(Forward_list&& other) noexcept {
+        if (this != &other) {
+            clear_data();
+            m_head = other.m_head;
+            m_size = other.m_size;
+            other.m_head = nullptr;
+            other.m_size = 0;
+        }
+        return *this;
+    }
+
+    Forward_list& operator=(std::initializer_list<T> i_list) {
+        clear_data();
+        for (auto it = i_list.crbegin(); it != i_list.crend(); ++it) {
+            push_front(*it);
+        }
+        return *this;
+    }
+
+    ~Forward_list() { clear_data(); }
 
     void push_front(const T &value) {
         auto new_node = new Node<T>(value);
@@ -34,8 +94,6 @@ public:
         ++m_size;
     }
 
-
-
 private:
     Node<T>* m_head;
     std::size_t m_size;
@@ -46,5 +104,6 @@ private:
             m_head = m_head->next;
             delete temp;
         }
+        m_size = 0;
     }
 };
