@@ -70,17 +70,19 @@ private:
 
 // Forward iterator
 template<typename T>
-class Forward_iterator : public Iterator<forward_iterator_tag, T> {
+class Forward_iterator {
 public:
-    explicit Forward_iterator(T *p = nullptr) : m_ptr(p) {
-    }
+    using value_type = T;
+    using pointer = T*;
+    using reference = T&;
 
-    T &operator*() const {
-        return *m_ptr;
-    }
+    explicit Forward_iterator(Node<T>* ptr = nullptr) : m_ptr(ptr) {}
 
-    Forward_iterator &operator++() {
-        ++m_ptr;
+    reference operator*() const { return m_ptr->value; }
+    pointer operator->() const { return &(m_ptr->value); }
+
+    Forward_iterator& operator++() {
+        m_ptr = m_ptr->next;
         return *this;
     }
 
@@ -90,16 +92,11 @@ public:
         return tmp;
     }
 
-    bool operator==(const Forward_iterator &other) const {
-        return m_ptr == other.m_ptr;
-    }
-
-    bool operator!=(const Forward_iterator &other) const {
-        return m_ptr != other.m_ptr;
-    }
+    bool operator==(const Forward_iterator& other) const { return m_ptr == other.m_ptr; }
+    bool operator!=(const Forward_iterator& other) const { return m_ptr != other.m_ptr; }
 
 private:
-    T *m_ptr;
+    Node<T>* m_ptr;
 };
 
 // Bidirectional iterator
