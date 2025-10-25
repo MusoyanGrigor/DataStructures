@@ -2,6 +2,7 @@
 
 #include "iterator_tags.hpp"
 #include "iterator_base.hpp"
+#include "node.hpp"
 
 // Input iterator
 template<typename T>
@@ -75,10 +76,17 @@ public:
     using value_type = T;
     using pointer = T*;
     using reference = T&;
+    using difference_type = std::ptrdiff_t;
+    using iterator_category = forward_iterator_tag;
 
-    explicit Forward_iterator(Node<T>* ptr = nullptr) : m_ptr(ptr) {}
+    explicit Forward_iterator(Node<T>* node = nullptr) : m_ptr(node) {}
+
+    Node<T>* node() {
+        return m_ptr;
+    }
 
     reference operator*() const { return m_ptr->value; }
+
     pointer operator->() const { return &(m_ptr->value); }
 
     Forward_iterator& operator++() {
