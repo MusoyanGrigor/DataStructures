@@ -118,6 +118,27 @@ public:
         ++m_size;
     }
 
+    void pop_front() {
+        if (m_head) {
+            auto temp = m_head;
+            m_head = m_head->next;
+            delete temp;
+            --m_size;
+        }
+    }
+
+    void resize(const size_type count, value_type value = value_type()) {
+        if (count == m_size) return;
+
+        while (m_size < count) {
+            push_back(value);
+        }
+
+        while (m_size > count) {
+            pop_back();
+        }
+    }
+
     // Iterators
     iterator begin() noexcept {
         return iterator(m_head);
@@ -170,4 +191,22 @@ private:
         ++m_size;
     }
 
+    void pop_back() {
+        if (!m_head) return;
+
+        if (!m_head->next) {
+            delete m_head;
+            m_head = nullptr;
+            m_size = 0;
+            return;
+        }
+
+        auto temp = m_head;
+        while (temp->next->next) {
+            temp = temp->next;
+        }
+        delete temp->next;
+        temp->next = nullptr;
+        --m_size;
+    }
 };
