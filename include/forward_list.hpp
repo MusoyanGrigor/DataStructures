@@ -2,6 +2,8 @@
 
 #include <initializer_list>
 #include <ranges>
+
+#include "algorithm.hpp"
 #include "node.hpp"
 #include "iterator.hpp"
 
@@ -102,7 +104,7 @@ public:
         return m_head->value;
     }
 
-    value_type &front() const {
+    const_reference front() const {
         return m_head->value;
     }
 
@@ -137,6 +139,75 @@ public:
         }
     }
 
+    template<typename... Args>
+    void emplace_front(Args &&... args) {
+        auto new_node = new Node<T>(std::forward<Args>(args)...);
+        new_node->next = m_head;
+        m_head = new_node;
+        ++m_size;
+    }
+
+    void insert_after(iterator pos, const_reference value) {
+        if (!pos.node()) throw std::out_of_range("Iterator out of range");
+
+        auto new_node = new Node<T>(value);
+        new_node->next = pos.node()->next;
+        pos.node()->next = new_node;
+        ++m_size;
+    }
+
+    void insert_after(iterator pos, const size_type count, const_reference value) {
+        if (!pos.node()) throw std::out_of_range("Iterator out of range");
+
+        for (size_type i = 0; i < count; ++i) {
+            auto new_node = new Node<T>(value);
+            new_node->next = pos.node()->next;
+            pos.node()->next = new_node;
+            pos = iterator(new_node);
+        }
+        m_size += count;
+    }
+
+    void insert_after(iterator pos, std::initializer_list<T> i_list) {
+        if (!pos.node()) throw std::out_of_range("Iterator out of range");
+
+        const size_type count = i_list.size();
+        for (size_type i = 0; i < count; ++i) {
+            auto new_node = new Node<T>(i_list.begin()[i]);
+            new_node->next = pos.node()->next;
+            pos.node()->next = new_node;
+            pos = iterator(new_node);
+        }
+        m_size += count;
+    }
+
+    // template<typename InputIt, typename = std::enable_if_t<it::is_iterator<InputIt>::value> >
+    // void insert_after(iterator pos, InputIt first, InputIt last) {
+    //     if (!pos.node()) throw std::out_of_range("Iterator out of range");
+    //
+    //     auto current = pos.node();
+    //     for (auto it = first; it != last; ++it) {
+    //         auto new_node = new Node<T>(*it);
+    //         new_node->next = current->next;
+    //         current->next = new_node;
+    //         current = new_node;
+    //     }
+    //     m_size += it::distance(first, last);
+    // }
+    //
+    //
+    // template<std::input_iterator InputIt>
+    // void insert_after(iterator pos, InputIt first, InputIt last) {
+    //     if (!pos.node()) throw std::out_of_range("Iterator out of range");
+    //
+    //     for (auto it = first; it != last; ++it) {
+    //         auto new_node = new Node<T>(*it);
+    //         new_node->next = pos.node()->next;
+    //         pos.node()->next = new_node;
+    //     }
+    //     m_size += it::distance(first, last);
+    // }
+
     void resize(const size_type count, value_type value = value_type()) {
         if (count == m_size) return;
 
@@ -149,7 +220,7 @@ public:
         }
     }
 
-    void assign(const size_type n, reference value) {
+    void assign(const size_type n, const_reference value) {
         clear_data();
         for (size_type i = 0; i < n; ++i) {
             push_front(value);
@@ -177,7 +248,6 @@ public:
             push_back(*it);
         }
     }
-
 
     // Iterators
     iterator begin() noexcept {
