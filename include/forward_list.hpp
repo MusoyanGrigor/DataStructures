@@ -17,6 +17,7 @@ public:
     using iterator = Forward_iterator<T>;
     using const_iterator = Forward_iterator<const T>;
 
+    // Constructors
     Forward_list() : m_head(nullptr), m_size(0) {}
 
     Forward_list(const Forward_list &other) : m_head(nullptr), m_size(0) {
@@ -47,7 +48,6 @@ public:
         }
     }
 
-
     Forward_list(std::initializer_list<T> i_list) {
         for (auto I: i_list)
             push_back(I);
@@ -63,6 +63,7 @@ public:
         for (size_type i = 0; i < count; ++i) push_back(value);
     }
 
+    // Assignment operator
     Forward_list &operator=(const Forward_list &other) {
         if (this != &other) {
             clear_data();
@@ -92,27 +93,54 @@ public:
         return *this;
     }
 
+    // Destructor
     ~Forward_list() { clear_data(); }
 
-    void push_front(const T &value) {
-        auto new_node = new Node<T>(value);
+    // Size
+    [[nodiscard]] size_type size() const {
+        return m_size;
+    }
+
+    [[nodiscard]] bool empty() const noexcept {
+        return m_size == 0;
+    }
+
+    // Modifiers
+    void clear() noexcept {
+        clear_data();
+    }
+
+    template <typename U>
+    void push_front(U &&value) {
+        auto new_node = new Node<T>(std::forward<U>(value));
         new_node->next = m_head;
         m_head = new_node;
         ++m_size;
     }
 
-    void push_back(const T &value) {
-        auto new_node = new Node<T>(value);
-        if (!m_head) {
-            m_head = new_node;
-        } else {
-            auto temp = m_head;
-            while (temp->next) {
-                temp = temp->next;
-            }
-            temp->next = new_node;
-        }
-        ++m_size;
+    // Iterators
+    iterator begin() noexcept {
+        return iterator(m_head);
+    }
+
+    const_iterator begin() const noexcept {
+        return const_iterator(m_head);
+    }
+
+    const_iterator cbegin() const noexcept {
+        return const_iterator(m_head);
+    }
+
+    iterator end() noexcept {
+        return iterator(nullptr);
+    }
+
+    const_iterator end() const noexcept {
+        return const_iterator(nullptr);
+    }
+
+    const_iterator cend() const noexcept {
+        return const_iterator(nullptr);
     }
 
 private:
@@ -127,4 +155,19 @@ private:
         }
         m_size = 0;
     }
+
+    void push_back(const_reference value) {
+        auto new_node = new Node<T>(value);
+        if (!m_head) {
+            m_head = new_node;
+        } else {
+            auto temp = m_head;
+            while (temp->next) {
+                temp = temp->next;
+            }
+            temp->next = new_node;
+        }
+        ++m_size;
+    }
+
 };
