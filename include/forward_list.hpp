@@ -18,7 +18,8 @@ public:
     using const_iterator = Forward_iterator<const T>;
 
     // Constructors
-    Forward_list() : m_head(nullptr), m_size(0) {}
+    Forward_list() : m_head(nullptr), m_size(0) {
+    }
 
     Forward_list(const Forward_list &other) : m_head(nullptr), m_size(0) {
         auto current = other.m_head;
@@ -119,7 +120,7 @@ public:
         clear_data();
     }
 
-    template <typename U>
+    template<typename U>
     void push_front(U &&value) {
         auto new_node = new Node<T>(std::forward<U>(value));
         new_node->next = m_head;
@@ -147,6 +148,36 @@ public:
             pop_back();
         }
     }
+
+    void assign(const size_type n, reference value) {
+        clear_data();
+        for (size_type i = 0; i < n; ++i) {
+            push_front(value);
+        }
+    }
+
+    void assign(std::initializer_list<T> i_list) {
+        clear_data();
+        for (auto i: i_list) push_back(i);
+    }
+
+    template<typename InputIt, typename = std::enable_if_t<std::is_base_of_v<input_iterator_tag,
+        typename InputIt::iterator_category> > >
+    void assign(InputIt first, InputIt last) {
+        clear_data();
+        for (auto it = first; it != last; ++it) {
+            push_back(*it);
+        }
+    }
+
+    template<std::input_iterator InputIt>
+    void assign(InputIt first, InputIt last) {
+        clear_data();
+        for (auto it = first; it != last; ++it) {
+            push_back(*it);
+        }
+    }
+
 
     // Iterators
     iterator begin() noexcept {
