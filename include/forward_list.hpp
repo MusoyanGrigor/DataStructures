@@ -50,9 +50,15 @@ public:
         }
     }
 
-    Forward_list(std::initializer_list<T> i_list) {
-        for (auto I: i_list)
-            push_back(I);
+    Forward_list(std::initializer_list<T> i_list) : m_head(nullptr), m_size(0) {
+        Node<T>* tail = nullptr;
+        for (const auto &value : i_list) {
+            auto new_node = new Node<T>(value);
+            if (!m_head) m_head = new_node;
+            else tail->next = new_node;
+            tail = new_node;
+            ++m_size;
+        }
     }
 
     explicit Forward_list(const size_type count) {
@@ -91,7 +97,14 @@ public:
 
     Forward_list &operator=(std::initializer_list<T> i_list) {
         clear_data();
-        for (auto i: i_list) push_back(i);
+        Node<T>* tail = nullptr;
+        for (const auto &value : i_list) {
+            auto new_node = new Node<T>(value);
+            if (!m_head) m_head = new_node;
+            else tail->next = new_node;
+            tail = new_node;
+            ++m_size;
+        }
         return *this;
     }
 
