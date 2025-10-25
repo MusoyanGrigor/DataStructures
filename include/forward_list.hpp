@@ -96,6 +96,15 @@ public:
     // Destructor
     ~Forward_list() { clear_data(); }
 
+    // Element Access
+    value_type &front() {
+        return m_head->value;
+    }
+
+    value_type &front() const {
+        return m_head->value;
+    }
+
     // Size
     [[nodiscard]] size_type size() const {
         return m_size;
