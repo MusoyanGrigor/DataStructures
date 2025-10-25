@@ -1,12 +1,23 @@
 #pragma once
 
 #include <initializer_list>
+#include <ranges>
 
 #include "node.hpp"
+#include "iterator.hpp"
 
 template <typename T>
 class Forward_list {
 public:
+    using value_type = T;
+    using pointer = T*;
+    using const_pointer = const T*;
+    using reference = T&;
+    using const_reference = const T&;
+    using size_type = std::size_t;
+    using iterator = Forward_iterator<T>;
+    using const_iterator = Forward_iterator<const T>;
+
     Forward_list() : m_head(nullptr), m_size(0) {}
 
     Forward_list(const Forward_list& other) : m_head(nullptr), m_size(0) {
@@ -28,14 +39,14 @@ public:
         }
     }
 
-    explicit Forward_list(const std::size_t count) {
-        for (std::size_t i = 0; i < count; ++i) {
-            push_front(T());
+    explicit Forward_list(const size_type count) {
+        for (size_type i = 0; i < count; ++i) {
+            push_front(value_type());
         }
     }
 
-    explicit Forward_list(std::size_t count, const T& value) {
-        for (std::size_t i = 0; i < count; ++i) {
+    explicit Forward_list(const size_type count, const T& value) {
+        for (size_type i = 0; i < count; ++i) {
             push_back(value);
         }
     }
@@ -95,8 +106,8 @@ public:
     }
 
 private:
-    Node<T>* m_head;
-    std::size_t m_size;
+    Node<value_type>* m_head;
+    size_type m_size;
 
     void clear_data() noexcept {
         while (m_head) {
