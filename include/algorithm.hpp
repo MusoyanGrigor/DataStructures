@@ -5,7 +5,7 @@
 #include "iterator.hpp"
 
 namespace it {
-    template <typename InputIt>
+    template<typename InputIt>
     constexpr auto distance(InputIt first, InputIt last) {
         using category = std::iterator_traits<InputIt>::iterator_category;
         using diff_t = std::iterator_traits<InputIt>::difference_type;
@@ -21,4 +21,19 @@ namespace it {
             return count;
         }
     }
+
+
+    template<typename T, typename = void>
+    struct is_iterator : std::false_type {
+    };
+
+    template<typename T>
+    struct is_iterator<T, std::void_t<
+                typename T::value_type,
+                typename T::difference_type,
+                typename T::pointer,
+                typename T::reference,
+                typename T::iterator_category
+            > > : std::true_type {
+    };
 }
