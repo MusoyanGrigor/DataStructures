@@ -209,6 +209,32 @@ public:
         }
     }
 
+    void erase_after(iterator pos) {
+        if (!pos.node()) throw std::out_of_range("Iterator out of range");
+        if (!pos.node()->next) return;
+
+        auto temp = pos.node()->next;
+        pos.node()->next = temp->next;
+        delete temp;
+        --m_size;
+    }
+
+    void erase_after(iterator first, iterator last) {
+        if (!first.node()) throw std::out_of_range("Iterator out of range");
+
+        auto current = first.node()->next;
+        auto stop = last.node();
+
+        while (current != stop) {
+            auto temp = current;
+            current = current->next;
+            delete temp;
+            --m_size;
+        }
+
+        first.node()->next = stop;
+    }
+
     void resize(const size_type count, value_type value = value_type()) {
         if (count == m_size) return;
 
