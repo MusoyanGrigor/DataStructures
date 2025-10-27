@@ -43,13 +43,6 @@ public:
         }
     }
 
-    template<std::input_iterator InputIt>
-    Forward_list(InputIt first, InputIt last) {
-        for (auto it = first; it != last; ++it) {
-            push_back(*it);
-        }
-    }
-
     Forward_list(std::initializer_list<T> i_list) : m_head(nullptr), m_size(0) {
         Node<T>* tail = nullptr;
         for (const auto &value : i_list) {
@@ -232,14 +225,6 @@ public:
     }
 
     template<typename InputIt, typename = std::enable_if_t<it::is_iterator<InputIt>::value> >
-    void assign(InputIt first, InputIt last) {
-        clear_data();
-        for (auto it = first; it != last; ++it) {
-            push_back(*it);
-        }
-    }
-
-    template<std::input_iterator InputIt>
     void assign(InputIt first, InputIt last) {
         clear_data();
         for (auto it = first; it != last; ++it) {
