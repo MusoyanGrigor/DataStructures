@@ -47,10 +47,10 @@ public:
         }
     }
 
-    Forward_list(std::initializer_list<T> i_list) : Forward_list() {
-        Node<T> *tail = m_dummy;
+    Forward_list(std::initializer_list<value_type> i_list) : Forward_list() {
+        auto tail = m_dummy;
         for (const auto &value: i_list) {
-            tail->next = new Node<T>(value);
+            tail->next = new Node<value_type>(value);
             tail = tail->next;
             ++m_size;
         }
@@ -62,7 +62,7 @@ public:
         }
     }
 
-    explicit Forward_list(const size_type count, const T &value) : Forward_list() {
+    explicit Forward_list(const size_type count, const_reference value) : Forward_list() {
         for (size_type i = 0; i < count; ++i) push_front(value);
     }
 
@@ -94,11 +94,11 @@ public:
         return *this;
     }
 
-    Forward_list &operator=(std::initializer_list<T> i_list) {
+    Forward_list &operator=(std::initializer_list<value_type> i_list) {
         clear_data();
-        Node<T> *tail = m_dummy;
+        auto tail = m_dummy;
         for (const auto &value: i_list) {
-            tail->next = new Node<T>(value);
+            tail->next = new Node<value_type>(value);
             tail = tail->next;
             ++m_size;
         }
@@ -139,7 +139,7 @@ public:
 
     template<typename U>
     void push_front(U &&value) {
-        auto new_node = new Node<T>(std::forward<U>(value));
+        auto new_node = new Node<value_type>(std::forward<U>(value));
         new_node->next = m_dummy->next;
         m_dummy->next = new_node;
         ++m_size;
@@ -174,7 +174,7 @@ public:
         if (!pos.node()) throw std::out_of_range("Iterator out of range");
 
         for (size_type i = 0; i < count; ++i) {
-            auto new_node = new Node<T>(value);
+            auto new_node = new Node<value_type>(value);
             new_node->next = pos.node()->next;
             pos.node()->next = new_node;
             pos = iterator(new_node);
@@ -182,12 +182,12 @@ public:
         m_size += count;
     }
 
-    void insert_after(iterator pos, std::initializer_list<T> i_list) {
+    void insert_after(iterator pos, std::initializer_list<value_type> i_list) {
         if (!pos.node()) throw std::out_of_range("Iterator out of range");
 
         const size_type count = i_list.size();
         for (size_type i = 0; i < count; ++i) {
-            auto new_node = new Node<T>(i_list.begin()[i]);
+            auto new_node = new Node<value_type>(i_list.begin()[i]);
             new_node->next = pos.node()->next;
             pos.node()->next = new_node;
             pos = iterator(new_node);
@@ -201,7 +201,7 @@ public:
 
         auto current = pos.node();
         for (auto it = first; it != last; ++it) {
-            auto new_node = new Node<T>(*it);
+            auto new_node = new Node<value_type>(*it);
             new_node->next = current->next;
             current->next = new_node;
             current = new_node;
@@ -228,7 +228,7 @@ public:
         }
     }
 
-    void assign(std::initializer_list<T> i_list) {
+    void assign(std::initializer_list<value_type> i_list) {
         clear_data();
         for (auto i: i_list) push_back(i);
     }
@@ -295,7 +295,7 @@ private:
     }
 
     void push_back(const_reference value) {
-        auto new_node = new Node<T>(value);
+        auto new_node = new Node<value_type>(value);
         auto temp = m_dummy;
         while (temp->next) {
             temp = temp->next;
