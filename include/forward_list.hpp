@@ -20,58 +20,61 @@ public:
     using const_iterator = Forward_iterator<const T>;
 
     // Constructors
-    Forward_list() : m_head(nullptr), m_size(0) {
-    }
+    Forward_list() : m_dummy(new Node<value_type>()), m_size(0) {}
 
-    Forward_list(const Forward_list &other) : m_head(nullptr), m_size(0) {
-        auto current = other.m_head;
-        while (current) {
-            push_back(current->value);
-            current = current->next;
-        }
-    }
-
-    Forward_list(Forward_list &&other) noexcept : m_head(other.m_head), m_size(other.m_size) {
-        other.m_head = nullptr;
-        other.m_size = 0;
-    }
-
-    template<typename InputIt, typename = std::enable_if_t<it::is_iterator<InputIt>::value> >
-    Forward_list(InputIt first, InputIt last) {
-        for (auto it = first; it != last; ++it) {
-            push_back(*it);
-        }
-    }
-
-    Forward_list(std::initializer_list<T> i_list) : m_head(nullptr), m_size(0) {
-        Node<T>* tail = nullptr;
-        for (const auto &value : i_list) {
-            auto new_node = new Node<T>(value);
-            if (!m_head) m_head = new_node;
-            else tail->next = new_node;
-            tail = new_node;
+    Forward_list(const Forward_list &other) : Forward_list() {
+        auto tail = m_dummy;
+        for (auto current = other.m_dummy->next; current != nullptr; current = current->next) {
+            tail->next = new Node<value_type>(current->value);
+            tail = tail->next;
             ++m_size;
         }
     }
 
-    explicit Forward_list(const size_type count) {
+    Forward_list(Forward_list &&other) noexcept : m_dummy(other.m_dummy), m_size(other.m_size) {
+        other.m_dummy = new Node<value_type>();
+        other.m_dummy->next = nullptr;
+        other.m_size = 0;
+    }
+
+    template<typename InputIt, typename = std::enable_if_t<it::is_iterator<InputIt>::value> >
+    Forward_list(InputIt first, InputIt last) : Forward_list() {
+        auto tail = m_dummy;
+        for (auto it = first; it != last; ++it) {
+            tail->next = new Node<value_type>(*it);
+            tail = tail->next;
+            ++m_size;
+        }
+    }
+
+    Forward_list(std::initializer_list<T> i_list) : Forward_list() {
+        Node<T> *tail = m_dummy;
+        for (const auto &value: i_list) {
+            tail->next = new Node<T>(value);
+            tail = tail->next;
+            ++m_size;
+        }
+    }
+
+    explicit Forward_list(const size_type count) : Forward_list() {
         for (size_type i = 0; i < count; ++i) {
             push_front(value_type());
         }
     }
 
-    explicit Forward_list(const size_type count, const T &value) {
-        for (size_type i = 0; i < count; ++i) push_back(value);
+    explicit Forward_list(const size_type count, const T &value) : Forward_list() {
+        for (size_type i = 0; i < count; ++i) push_front(value);
     }
 
     // Assignment operator
     Forward_list &operator=(const Forward_list &other) {
         if (this != &other) {
             clear_data();
-            auto current = other.m_head;
-            while (current) {
-                push_back(current->value);
-                current = current->next;
+            auto tail = m_dummy;
+            for (auto current = other.m_dummy->next; current != nullptr; current = current->next) {
+                tail->next = new Node<value_type>(current->value);
+                tail = tail->next;
+                ++m_size;
             }
         }
         return *this;
@@ -80,9 +83,12 @@ public:
     Forward_list &operator=(Forward_list &&other) noexcept {
         if (this != &other) {
             clear_data();
-            m_head = other.m_head;
+            delete m_dummy;
+
+            m_dummy = other.m_dummy;
             m_size = other.m_size;
-            other.m_head = nullptr;
+
+            other.m_dummy = new Node<value_type>();
             other.m_size = 0;
         }
         return *this;
@@ -90,27 +96,31 @@ public:
 
     Forward_list &operator=(std::initializer_list<T> i_list) {
         clear_data();
-        Node<T>* tail = nullptr;
-        for (const auto &value : i_list) {
-            auto new_node = new Node<T>(value);
-            if (!m_head) m_head = new_node;
-            else tail->next = new_node;
-            tail = new_node;
+        Node<T> *tail = m_dummy;
+        for (const auto &value: i_list) {
+            tail->next = new Node<T>(value);
+            tail = tail->next;
             ++m_size;
         }
         return *this;
     }
 
     // Destructor
-    ~Forward_list() { clear_data(); }
+    ~Forward_list() {
+        clear_data();
+        delete m_dummy;
+        m_dummy = nullptr;
+    }
 
     // Element Access
     value_type &front() {
-        return m_head->value;
+        if (empty()) throw std::out_of_range("Forward_list is empty");
+        return m_dummy->next->value;
     }
 
     const_reference front() const {
-        return m_head->value;
+        if (empty()) throw std::out_of_range("Forward_list is empty");
+        return m_dummy->next->value;
     }
 
     // Size
@@ -130,15 +140,15 @@ public:
     template<typename U>
     void push_front(U &&value) {
         auto new_node = new Node<T>(std::forward<U>(value));
-        new_node->next = m_head;
-        m_head = new_node;
+        new_node->next = m_dummy->next;
+        m_dummy->next = new_node;
         ++m_size;
     }
 
     void pop_front() {
-        if (m_head) {
-            auto temp = m_head;
-            m_head = m_head->next;
+        if (m_dummy->next) {
+            auto temp = m_dummy->next;
+            m_dummy->next = temp->next;
             delete temp;
             --m_size;
         }
@@ -146,16 +156,15 @@ public:
 
     template<typename... Args>
     void emplace_front(Args &&... args) {
-        auto new_node = new Node<T>(std::forward<Args>(args)...);
-        new_node->next = m_head;
-        m_head = new_node;
+        auto new_node = new Node<value_type>(std::forward<Args>(args)...);
+        new_node->next = m_dummy->next;
+        m_dummy->next = new_node;
         ++m_size;
     }
 
     void insert_after(iterator pos, const_reference value) {
         if (!pos.node()) throw std::out_of_range("Iterator out of range");
-
-        auto new_node = new Node<T>(value);
+        auto new_node = new Node<value_type>(value);
         new_node->next = pos.node()->next;
         pos.node()->next = new_node;
         ++m_size;
@@ -234,15 +243,15 @@ public:
 
     // Iterators
     iterator begin() noexcept {
-        return iterator(m_head);
+        return iterator(m_dummy->next);
     }
 
     const_iterator begin() const noexcept {
-        return const_iterator(m_head);
+        return const_iterator(m_dummy->next);
     }
 
     const_iterator cbegin() const noexcept {
-        return const_iterator(m_head);
+        return const_iterator(m_dummy->next);
     }
 
     iterator end() noexcept {
@@ -258,46 +267,45 @@ public:
     }
 
 private:
-    Node<value_type> *m_head;
+    Node<value_type> *m_dummy;
     size_type m_size;
 
     void clear_data() noexcept {
-        while (m_head) {
-            auto temp = m_head;
-            m_head = m_head->next;
+        auto current = m_dummy->next;
+        while (current) {
+            auto temp = current;
+            current = current->next;
             delete temp;
         }
+        m_dummy->next = nullptr;
         m_size = 0;
     }
 
     void push_back(const_reference value) {
         auto new_node = new Node<T>(value);
-        if (!m_head) {
-            m_head = new_node;
-        } else {
-            auto temp = m_head;
-            while (temp->next) {
-                temp = temp->next;
-            }
-            temp->next = new_node;
+        auto temp = m_dummy;
+        while (temp->next) {
+            temp = temp->next;
         }
+        temp->next = new_node;
         ++m_size;
     }
 
     void pop_back() {
-        if (!m_head) return;
+        if (!m_dummy->next) return;
 
-        if (!m_head->next) {
-            delete m_head;
-            m_head = nullptr;
+        if (!m_dummy->next->next) {
+            delete m_dummy->next;
+            m_dummy->next = nullptr;
             m_size = 0;
             return;
         }
 
-        auto temp = m_head;
+        auto temp = m_dummy;
         while (temp->next->next) {
             temp = temp->next;
         }
+
         delete temp->next;
         temp->next = nullptr;
         --m_size;
