@@ -221,9 +221,9 @@ public:
         }
     }
 
-    void assign(const size_type n, const_reference value) {
+    void assign(const size_type count, const_reference value) {
         clear_data();
-        for (size_type i = 0; i < n; ++i) {
+        for (size_type i = 0; i < count; ++i) {
             push_front(value);
         }
     }
@@ -242,6 +242,7 @@ public:
     }
 
     // Iterators
+
     iterator begin() noexcept {
         return iterator(m_dummy->next);
     }
@@ -264,6 +265,18 @@ public:
 
     const_iterator cend() const noexcept {
         return const_iterator(nullptr);
+    }
+
+    iterator before_begin() noexcept {
+        return iterator(m_dummy);
+    }
+
+    const_iterator before_begin() const noexcept {
+        return const_iterator(m_dummy);
+    }
+
+    const_iterator cbefore_begin() const noexcept {
+        return const_iterator(m_dummy);
     }
 
 private:
