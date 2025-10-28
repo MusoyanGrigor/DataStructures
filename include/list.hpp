@@ -10,10 +10,10 @@ template<typename T>
 class List {
 public:
     using value_type = T;
-    using pointer = T*;
-    using const_pointer = const T*;
-    using reference = T&;
-    using const_reference = const T&;
+    using pointer = T *;
+    using const_pointer = const T *;
+    using reference = T &;
+    using const_reference = const T &;
     using size_type = std::size_t;
     using iterator = Bidirectional_iterator<T>;
     using const_iterator = Bidirectional_iterator<const T>;
@@ -21,9 +21,10 @@ public:
     using const_reverse_iterator = Reverse_random_access_iterator<const T>;
 
     // Constructors
-    List() : m_head(nullptr), m_tail(nullptr), m_size(0) {}
+    List() : m_head(nullptr), m_tail(nullptr), m_size(0) {
+    }
 
-    List(const List& other) : List() {
+    List(const List &other) : List() {
         auto temp = other.m_head;
         while (temp) {
             push_back(temp->value);
@@ -31,7 +32,7 @@ public:
         }
     }
 
-    List(List&& other) noexcept : m_head(other.m_head), m_tail(other.m_tail), m_size(other.m_size) {
+    List(List &&other) noexcept : m_head(other.m_head), m_tail(other.m_tail), m_size(other.m_size) {
         other.m_head = nullptr;
         other.m_tail = nullptr;
         other.m_size = 0;
@@ -45,7 +46,7 @@ public:
     }
 
     List(std::initializer_list<value_type> i_list) : List() {
-        for (auto& value : i_list) {
+        for (auto &value: i_list) {
             push_back(value);
         }
     }
@@ -63,7 +64,7 @@ public:
     }
 
     // Assignment operator
-    List& operator=(const List& other) {
+    List &operator=(const List &other) {
         if (this != &other) {
             clear_data();
             auto temp = other.m_head;
@@ -75,7 +76,7 @@ public:
         return *this;
     }
 
-    List& operator=(List&& other) noexcept {
+    List &operator=(List &&other) noexcept {
         if (this != &other) {
             clear_data();
             m_head = other.m_head;
@@ -88,16 +89,16 @@ public:
         return *this;
     }
 
-    List& operator=(std::initializer_list<value_type> i_list) {
+    List &operator=(std::initializer_list<value_type> i_list) {
         clear_data();
-        for (auto& value : i_list) {
+        for (auto &value: i_list) {
             push_back(value);
         }
         return *this;
     }
 
     // Destructor
-    ~List() {clear_data();}
+    ~List() { clear_data(); }
 
     // Element access
     reference front() {
@@ -134,8 +135,9 @@ public:
     }
 
     // Modifiers
-    void push_front(const_reference value) {
-        auto new_node = new DNode<value_type>(value);
+    template<typename U>
+    void push_front(U &&value) {
+        auto new_node = new DNode<value_type>(std::forward<U>(value));
         if (!m_head) {
             m_head = m_tail = new_node;
         } else {
@@ -146,8 +148,9 @@ public:
         ++m_size;
     }
 
-    void push_back(const_reference value) {
-        auto new_node = new DNode<value_type>(value);
+    template<typename U>
+    void push_back(U &&value) {
+        auto new_node = new DNode<value_type>(std::forward<U>(value));
         if (!m_head) {
             m_head = m_tail = new_node;
         } else {
@@ -156,6 +159,100 @@ public:
             m_tail = new_node;
         }
         ++m_size;
+    }
+
+    void insert(iterator pos, const_reference value) {
+        if (pos == end()) push_back(value);
+        else if (pos == begin()) push_front(value);
+        else {
+            auto new_node = new DNode<value_type>(value);
+            DNode<value_type> *current = pos.node();
+
+            new_node->next = current;
+            new_node->prev = current->prev;
+
+            if (current->prev) current->prev->next = new_node;
+            current->prev = new_node;
+            ++m_size;
+        }
+    }
+
+    void insert(iterator pos, const size_type count, const_reference value) {
+        if (pos == end()) {
+            for (size_type i = 0; i < count; ++i) push_back(value);
+            return;
+        }
+        if (pos == begin()) {
+            for (size_type i = 0; i < count; ++i) push_front(value);
+            return;
+        }
+
+        auto current = pos.node();
+        DNode<value_type> *prev_node = current->prev;
+
+        for (size_type i = 0; i < count; ++i) {
+            auto new_node = new DNode<value_type>(value);
+            new_node->prev = prev_node;
+            if (prev_node) prev_node->next = new_node;
+            prev_node = new_node; // move prev_node forward
+            ++m_size;
+        }
+
+        // Connect the last inserted node to current
+        prev_node->next = current;
+        current->prev = prev_node;
+    }
+
+
+    void insert(iterator pos, std::initializer_list<value_type> i_list) {
+        if (pos == end()) {
+            for (auto &value: i_list) push_back(value);
+            return;
+        }
+        if (pos == begin()) {
+            for (auto &value: i_list) push_front(value);
+            return;
+        }
+
+        auto current = pos.node();
+        DNode<value_type> *prev_node = current->prev;
+
+        for (auto &value: i_list) {
+            auto new_node = new DNode<value_type>(value);
+            new_node->prev = prev_node;
+            if (prev_node) prev_node->next = new_node;
+            prev_node = new_node;
+            ++m_size;
+        }
+
+        prev_node->next = current;
+        current->prev = prev_node;
+    }
+
+    template<typename InputIt, typename = std::enable_if_t<it::is_iterator<InputIt>::value> >
+    void insert(iterator pos, InputIt first, InputIt last) {
+        if (pos == end()) {
+            for (auto it = first; it != last; ++it) push_back(*it);
+            return;
+        }
+        if (pos == begin()) {
+            for (auto it = first; it != last; ++it) push_front(*it);
+            return;
+        }
+
+        auto current = pos.node();
+        DNode<value_type> *prev_node = current->prev;
+
+        for (auto it = first; it != last; ++it) {
+            auto new_node = new DNode<value_type>(*it);
+            new_node->prev = prev_node;
+            if (prev_node) prev_node->next = new_node;
+            prev_node = new_node;
+            ++m_size;
+        }
+
+        prev_node->next = current;
+        current->prev = prev_node;
     }
 
     // Iterators
