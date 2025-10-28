@@ -323,6 +323,31 @@ public:
         return const_iterator(nullptr);
     }
 
+    reverse_iterator rbegin() noexcept {
+        return reverse_iterator(m_tail);
+    }
+
+    reverse_iterator rend() noexcept {
+        return reverse_iterator(nullptr);
+    }
+
+    const_reverse_iterator rbegin() const noexcept {
+        return const_reverse_iterator(m_tail);
+    }
+
+    const_reverse_iterator rend() const noexcept {
+        return const_reverse_iterator(nullptr);
+    }
+
+    const_reverse_iterator crbegin() const noexcept {
+        return const_reverse_iterator(m_tail);
+    }
+
+    const_reverse_iterator crend() const noexcept {
+        return const_reverse_iterator(nullptr);
+    }
+
+
 private:
     DNode<value_type> *m_head;
     DNode<value_type> *m_tail;
