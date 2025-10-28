@@ -245,37 +245,43 @@ private:
 template<typename T>
 class Reverse_bidirectional_iterator : public Iterator<bidirectional_iterator_tag, T> {
 public:
-    explicit Reverse_bidirectional_iterator(T *p = nullptr) : m_ptr(p) {
-    }
+    using value_type = T;
+    using pointer = T*;
+    using reference = T&;
+    using difference_type = std::ptrdiff_t;
+    using iterator_category = std::bidirectional_iterator_tag;
+    using node_type = DNode<std::remove_const_t<T>>;
 
-    T &operator*() const {
-        return *(m_ptr - 1);
-    }
+    explicit Reverse_bidirectional_iterator(node_type *p = nullptr) : m_ptr(p) {}
 
-    Reverse_bidirectional_iterator &operator++() {
-        --m_ptr;
+    template<typename U, typename = std::enable_if_t<std::is_convertible_v<U*, T*>>>
+    explicit Reverse_bidirectional_iterator(const Reverse_bidirectional_iterator<U>& other) : m_ptr(other.m_ptr) {}
+
+    node_type* node() const { return m_ptr; }
+
+    reference operator*() const { return m_ptr->value; }
+    pointer operator->() const { return &(m_ptr->value); }
+
+    Reverse_bidirectional_iterator& operator++() {
+        m_ptr = m_ptr->prev;
         return *this;
     }
 
     Reverse_bidirectional_iterator operator++(int) {
         Reverse_bidirectional_iterator tmp = *this;
-        --(*this);
+        ++(*this);
         return tmp;
     }
 
-    Reverse_bidirectional_iterator &operator--() {
-        ++m_ptr;
+    Reverse_bidirectional_iterator& operator--() {
+        m_ptr = m_ptr->next;
         return *this;
     }
 
     Reverse_bidirectional_iterator operator--(int) {
         Reverse_bidirectional_iterator tmp = *this;
-        ++(*this);
+        --(*this);
         return tmp;
-    }
-
-    T* operator->() const {
-        return m_ptr - 1;
     }
 
     bool operator==(const Reverse_bidirectional_iterator &other) const {
@@ -287,7 +293,7 @@ public:
     }
 
 private:
-    T *m_ptr;
+    node_type *m_ptr;
 };
 
 template <typename T>
