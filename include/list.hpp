@@ -19,6 +19,7 @@ public:
     using reverse_iterator = Reverse_random_access_iterator<T>;
     using const_reverse_iterator = Reverse_random_access_iterator<const T>;
 
+    // Constructors
     List() : m_head(nullptr), m_tail(nullptr), m_size(0) {}
 
     List(const List& other) : List() {
@@ -58,6 +59,40 @@ public:
         for (size_type i = 0; i < count; ++i) {
             push_back(value);
         }
+    }
+
+    // Assignment operator
+    List& operator=(const List& other) {
+        if (this != &other) {
+            clear_data();
+            auto temp = other.m_head;
+            while (temp) {
+                push_back(temp->value);
+                temp = temp->next;
+            }
+        }
+        return *this;
+    }
+
+    List& operator=(List&& other) noexcept {
+        if (this != &other) {
+            clear_data();
+            m_head = other.m_head;
+            m_tail = other.m_tail;
+            m_size = other.m_size;
+            other.m_head = nullptr;
+            other.m_tail = nullptr;
+            other.m_size = 0;
+        }
+        return *this;
+    }
+
+    List& operator=(std::initializer_list<value_type> i_list) {
+        clear_data();
+        for (auto& value : i_list) {
+            push_back(value);
+        }
+        return *this;
     }
 
     ~List() {clear_data();}
