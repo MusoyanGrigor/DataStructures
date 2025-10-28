@@ -9,7 +9,7 @@
 #include "iterator.hpp"
 #include "algorithm.hpp"
 
-template<typename T>
+template <typename T>
 class Vector {
 public:
     using value_type = T;
@@ -77,12 +77,12 @@ public:
         m_data = new value_type[m_capacity];
         std::random_device rd;
         std::mt19937 gen(rd());
-        if constexpr(std::is_integral_v<T>) {
+        if constexpr (std::is_integral_v<T>) {
             std::uniform_int_distribution<T> dis(range.first, range.second);
             for (size_type i = 0; i < m_size; ++i) {
                 m_data[i] = dis(gen);
             }
-        } else if constexpr(std::is_floating_point_v<T>) {
+        } else if constexpr (std::is_floating_point_v<T>) {
             std::uniform_real_distribution<T> dis(range.first, range.second);
             for (size_type i = 0; i < m_size; ++i) {
                 m_data[i] = dis(gen);
@@ -183,14 +183,21 @@ public:
     }
 
     // Capacity & size
-    [[nodiscard]] bool empty() const { return m_size == 0; }
-    [[nodiscard]] size_type size() const { return m_size; }
+    [[nodiscard]] bool empty() const {
+        return m_size == 0;
+    }
+
+    [[nodiscard]] size_type size() const {
+        return m_size;
+    }
 
     [[nodiscard]] size_type max_size() const {
         return std::numeric_limits<size_type>::max() / (sizeof(value_type) * 2);
     }
 
-    [[nodiscard]] size_type capacity() const { return m_capacity; }
+    [[nodiscard]] size_type capacity() const {
+        return m_capacity;
+    }
 
     void reserve(const size_type new_capacity) {
         if (new_capacity > m_capacity) {
@@ -271,8 +278,7 @@ public:
         m_size += count;
     }
 
-    template<typename InputIt, typename = std::enable_if_t<std::is_base_of_v<std::input_iterator_tag,
-        typename std::iterator_traits<InputIt>::iterator_category> > >
+    template<typename InputIt, typename = std::enable_if_t<it::is_iterator<InputIt>::value> >
     void insert(const_iterator pos, InputIt first, InputIt last) {
         const size_type count = it::distance(first, last);
         if (count == 0) return;
@@ -398,8 +404,7 @@ public:
         m_size = count;
     }
 
-    template<typename InputIt, typename = std::enable_if_t<std::is_base_of_v<std::input_iterator_tag,
-        typename std::iterator_traits<InputIt>::iterator_category> > >
+    template<typename InputIt, typename = std::enable_if_t<it::is_iterator<InputIt>::value> >
     void assign(InputIt first, InputIt last) {
         clear();
         auto count = std::distance(first, last);
@@ -469,7 +474,7 @@ public:
         return const_reverse_iterator(m_data);
     }
 
-    // relational operators
+    // Relational operators
     auto operator<=>(const Vector &other) const {
         return std::lexicographical_compare_three_way(m_data, m_data + m_size,
                                                       other.m_data, other.m_data + other.m_size);
