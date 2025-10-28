@@ -271,8 +271,12 @@ public:
         }
     }
 
-    // Iterators
+    void swap(Forward_list& other) noexcept{
+        std::swap(m_dummy, other.m_dummy);
+        std::swap(m_size, other.m_size);
+    }
 
+    // Iterators
     iterator begin() noexcept {
         return iterator(m_dummy->next);
     }
@@ -325,7 +329,6 @@ public:
         return !(*this == other);
     }
 
-
 private:
     Node<value_type> *m_dummy;
     size_type m_size;
@@ -371,3 +374,8 @@ private:
         --m_size;
     }
 };
+
+template <typename T>
+void Swap(Forward_list<T>& lhs, Forward_list<T>& rhs) {
+    lhs.swap(rhs);
+}
