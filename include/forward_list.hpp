@@ -128,6 +128,10 @@ public:
         return m_size;
     }
 
+    [[nodiscard]] size_type max_size() const noexcept {
+        return std::numeric_limits<size_type>::max();
+    }
+
     [[nodiscard]] bool empty() const noexcept {
         return m_size == 0;
     }
@@ -304,6 +308,23 @@ public:
     const_iterator cbefore_begin() const noexcept {
         return const_iterator(m_dummy);
     }
+
+    // Relational operators
+    auto operator<=>(const Forward_list& other) const {
+        return std::lexicographical_compare_three_way(
+            begin(), end(),
+            other.begin(), other.end()
+        );
+    }
+
+    bool operator==(const Forward_list & other) const {
+        return (*this <=> other) == 0;
+    }
+
+    bool operator!=(const Forward_list & other) const {
+        return !(*this == other);
+    }
+
 
 private:
     Node<value_type> *m_dummy;
