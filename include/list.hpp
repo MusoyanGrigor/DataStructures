@@ -288,6 +288,16 @@ public:
             pop_back();
     }
 
+    void clear() {
+        clear_data();
+    }
+
+    void swap(List& other) noexcept {
+        std::swap(m_head, other.m_head);
+        std::swap(m_tail, other.m_tail);
+        std::swap(m_size, other.m_size);
+    }
+
     // Iterators
     iterator begin() noexcept {
         return iterator(m_head);
@@ -328,3 +338,9 @@ private:
         m_size = 0;
     }
 };
+
+
+template<typename T>
+void swap(List<T>& lhs, List<T>& rhs) noexcept {
+    lhs.swap(rhs);
+}
