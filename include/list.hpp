@@ -161,11 +161,12 @@ public:
         ++m_size;
     }
 
-    void insert(iterator pos, const_reference value) {
-        if (pos == end()) push_back(value);
-        else if (pos == begin()) push_front(value);
+    template<typename U>
+    void insert(iterator pos,U&&  value) {
+        if (pos == end()) push_back(std::forward<U>(value));
+        else if (pos == begin()) push_front(std::forward<U>(value));
         else {
-            auto new_node = new DNode<value_type>(value);
+            auto new_node = new DNode<value_type>(std::forward<U>(value));
             DNode<value_type> *current = pos.node();
 
             new_node->next = current;
@@ -202,7 +203,6 @@ public:
         prev_node->next = current;
         current->prev = prev_node;
     }
-
 
     void insert(iterator pos, std::initializer_list<value_type> i_list) {
         if (pos == end()) {
