@@ -161,6 +161,30 @@ public:
         ++m_size;
     }
 
+    void pop_front() {
+        if (!m_head) throw std::out_of_range("List is empty");
+        auto temp = m_head;
+        m_head = temp->next;
+
+        if (m_head) m_head->prev = nullptr;
+        else m_tail = nullptr;
+
+        delete temp;
+        --m_size;
+    }
+
+    void pop_back() {
+        if (!m_head) throw std::out_of_range("List is empty");
+        auto temp = m_tail;
+        m_tail = temp->prev;
+
+        if (m_tail) m_tail->next = nullptr;
+        else m_head = nullptr;
+
+        delete temp;
+        --m_size;
+    }
+
     template<typename U>
     void insert(iterator pos,U&&  value) {
         if (pos == end()) push_back(std::forward<U>(value));
@@ -253,6 +277,15 @@ public:
 
         prev_node->next = current;
         current->prev = prev_node;
+    }
+
+
+    template<typename U = value_type>
+    void resize(const size_type count, U&& value = U()) {
+        while (m_size < count)
+            push_back(std::forward<U>(value));
+        while (m_size > count)
+            pop_back();
     }
 
     // Iterators
