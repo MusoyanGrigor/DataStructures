@@ -114,7 +114,7 @@ public:
     }
 
     // Element Access
-    value_type &front() {
+    reference front() {
         if (empty()) throw std::out_of_range("Forward_list is empty");
         return m_dummy->next->value;
     }
@@ -167,7 +167,8 @@ public:
         ++m_size;
     }
 
-    void insert_after(iterator pos, const_reference value) {
+    template<typename U>
+    void insert_after(iterator pos, U&& value) {
         if (!pos.node()) throw std::out_of_range("Iterator out of range");
         auto new_node = new Node<value_type>(value);
         new_node->next = pos.node()->next;
