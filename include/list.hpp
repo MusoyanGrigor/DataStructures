@@ -17,8 +17,8 @@ public:
     using size_type = std::size_t;
     using iterator = Bidirectional_iterator<T>;
     using const_iterator = Bidirectional_iterator<const T>;
-    using reverse_iterator = Reverse_random_access_iterator<T>;
-    using const_reverse_iterator = Reverse_random_access_iterator<const T>;
+    using reverse_iterator = Reverse_bidirectional_iterator<T>;
+    using const_reverse_iterator = Reverse_bidirectional_iterator<const T>;
 
     // Constructors
     List() : m_head(nullptr), m_tail(nullptr), m_size(0) {
@@ -347,6 +347,18 @@ public:
         return const_reverse_iterator(nullptr);
     }
 
+    // Relational operators
+    auto operator<=>(const List &other) const {
+        return std::lexicographical_compare_three_way(begin(), end(), other.begin(), other.end());
+    }
+
+    bool operator==(const List &other) const {
+        return (*this <=> other) == 0;
+    }
+
+    bool operator!=(const List &other) const {
+        return !(*this == other);
+    }
 
 private:
     DNode<value_type> *m_head;
