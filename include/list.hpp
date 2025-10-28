@@ -8,6 +8,17 @@
 template<typename T>
 class List {
 public:
+    using value_type = T;
+    using pointer = T*;
+    using const_pointer = const T*;
+    using reference = T&;
+    using const_reference = const T&;
+    using size_type = std::size_t;
+    using iterator = Bidirectional_iterator<T>;
+    using const_iterator = Bidirectional_iterator<const T>;
+    using reverse_iterator = Reverse_random_access_iterator<T>;
+    using const_reverse_iterator = Reverse_random_access_iterator<const T>;
+
     List() : m_head(nullptr), m_tail(nullptr), m_size(0) {}
 
     List(const List& other) : List() {
@@ -31,28 +42,28 @@ public:
         }
     }
 
-    List(std::initializer_list<T> i_list) : List() {
+    List(std::initializer_list<value_type> i_list) : List() {
         for (auto& value : i_list) {
             push_back(value);
         }
     }
 
-    explicit List(const std::size_t count) : List() {
-        for (std::size_t i = 0; i < count; ++i) {
-            push_back(T());
+    explicit List(const size_type count) : List() {
+        for (size_type i = 0; i < count; ++i) {
+            push_back(value_type());
         }
     }
 
-    List(const std::size_t count, const T& value) : List() {
-        for (std::size_t i = 0; i < count; ++i) {
+    List(const size_type count, const_reference value) : List() {
+        for (size_type i = 0; i < count; ++i) {
             push_back(value);
         }
     }
 
     ~List() {clear_data();}
 
-    void push_front(const T &value) {
-        auto new_node = new Node<T>(value);
+    void push_front(const_reference value) {
+        auto new_node = new Node<value_type>(value);
         if (!m_head) {
             m_head = m_tail = new_node;
         } else {
@@ -63,8 +74,8 @@ public:
         ++m_size;
     }
 
-    void push_back(const T &value) {
-        auto new_node = new Node<T>(value);
+    void push_back(const_reference value) {
+        auto new_node = new Node<value_type>(value);
         if (!m_head) {
             m_head = m_tail = new_node;
         } else {
@@ -76,9 +87,9 @@ public:
     }
 
 private:
-    Node<T> *m_head;
-    Node<T> *m_tail;
-    std::size_t m_size;
+    Node<value_type> *m_head;
+    Node<value_type> *m_tail;
+    size_type m_size;
 
     void clear_data() {
         while (m_head) {
