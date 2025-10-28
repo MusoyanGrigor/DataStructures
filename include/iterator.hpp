@@ -77,16 +77,19 @@ public:
     using pointer = T*;
     using reference = T&;
     using difference_type = std::ptrdiff_t;
-    using iterator_category = forward_iterator_tag;
+    using iterator_category = std::forward_iterator_tag;
 
-    explicit Forward_iterator(Node<T>* node = nullptr) : m_ptr(node) {}
+    using node_type = Node<std::remove_const_t<T>>;
 
-    Node<T>* node() {
-        return m_ptr;
-    }
+    explicit Forward_iterator(node_type* node = nullptr) : m_ptr(node) {}
+
+    template<typename U, typename = std::enable_if_t<std::is_convertible_v<U*, T*>>>
+    explicit Forward_iterator(const Forward_iterator<U>& other)
+        : m_ptr(other.node()) {}
+
+    node_type* node() const { return m_ptr; }
 
     reference operator*() const { return m_ptr->value; }
-
     pointer operator->() const { return &(m_ptr->value); }
 
     Forward_iterator& operator++() {
@@ -95,7 +98,7 @@ public:
     }
 
     Forward_iterator operator++(int) {
-        Forward_iterator tmp = *this;
+        Forward_iterator tmp(*this);
         ++(*this);
         return tmp;
     }
@@ -104,7 +107,7 @@ public:
     bool operator!=(const Forward_iterator& other) const { return m_ptr != other.m_ptr; }
 
 private:
-    Node<T>* m_ptr;
+    node_type* m_ptr;
 };
 
 // Bidirectional iterator
