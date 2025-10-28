@@ -95,7 +95,29 @@ public:
         return *this;
     }
 
+    // Destructor
     ~List() {clear_data();}
+
+    // Element access
+    reference front() {
+        if (!m_head) throw std::out_of_range("List is empty");
+        return m_head->value;
+    }
+
+    const_reference front() const {
+        if (!m_head) throw std::out_of_range("List is empty");
+        return m_head->value;
+    }
+
+    reference back() {
+        if (!m_head) throw std::out_of_range("List is empty");
+        return m_tail->value;
+    }
+
+    const_reference back() const {
+        if (!m_head) throw std::out_of_range("List is empty");
+        return m_tail->value;
+    }
 
     void push_front(const_reference value) {
         auto new_node = new Node<value_type>(value);
