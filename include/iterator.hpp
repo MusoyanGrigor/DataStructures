@@ -78,7 +78,6 @@ public:
     using reference = T&;
     using difference_type = std::ptrdiff_t;
     using iterator_category = std::forward_iterator_tag;
-
     using node_type = Node<std::remove_const_t<T>>;
 
     explicit Forward_iterator(node_type* node = nullptr) : m_ptr(node) {}
@@ -114,15 +113,25 @@ private:
 template<typename T>
 class Bidirectional_iterator : public Iterator<bidirectional_iterator_tag, T> {
 public:
-    explicit Bidirectional_iterator(T *p = nullptr) : m_ptr(p) {
-    }
+    using value_type = T;
+    using pointer = T*;
+    using reference = T&;
+    using difference_type = std::ptrdiff_t;
+    using iterator_category = std::bidirectional_iterator_tag;
+    using node_type = DNode<std::remove_const_t<T>>;
 
-    T &operator*() const {
-        return *m_ptr;
-    }
+    explicit Bidirectional_iterator(node_type *node = nullptr) : m_ptr(node) {}
+
+    template<typename U, typename = std::enable_if_t<std::is_convertible_v<U*, T*>>>
+    explicit Bidirectional_iterator(const Bidirectional_iterator<U>& other) : m_ptr(other.node()) {}
+
+    node_type* node() const { return m_ptr; }
+
+    reference operator*() const { return m_ptr->value; }
+    pointer operator->() const { return &(m_ptr->value); }
 
     Bidirectional_iterator &operator++() {
-        ++m_ptr;
+        m_ptr = m_ptr->next;
         return *this;
     }
 
@@ -133,7 +142,7 @@ public:
     }
 
     Bidirectional_iterator &operator--() {
-        --m_ptr;
+        m_ptr = m_ptr->prev;
         return *this;
     }
 
@@ -142,6 +151,7 @@ public:
         --(*this);
         return tmp;
     }
+
 
     bool operator==(const Bidirectional_iterator &other) const {
         return m_ptr == other.m_ptr;
@@ -152,7 +162,7 @@ public:
     }
 
 private:
-    T *m_ptr;
+    node_type *m_ptr;
 };
 
 // Random access iterator
