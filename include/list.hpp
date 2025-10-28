@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <cstddef>
+#include <limits>
 
 #include "algorithm.hpp"
 #include "node.hpp"
@@ -117,6 +118,19 @@ public:
     const_reference back() const {
         if (!m_head) throw std::out_of_range("List is empty");
         return m_tail->value;
+    }
+
+    // Size
+    [[nodiscard]] size_type size() const noexcept {
+        return m_size;
+    }
+
+    [[nodiscard]] size_type max_size() const noexcept {
+        return std::numeric_limits<size_type>::max();
+    }
+
+    [[nodiscard]] bool empty() const noexcept {
+        return m_size == 0;
     }
 
     void push_front(const_reference value) {
