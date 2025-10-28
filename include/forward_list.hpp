@@ -1,6 +1,7 @@
 #pragma once
 
 #include <initializer_list>
+#include <limits>
 #include <ranges>
 
 #include "algorithm.hpp"
