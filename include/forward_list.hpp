@@ -20,7 +20,8 @@ public:
     using const_iterator = Forward_iterator<const T>;
 
     // Constructors
-    Forward_list() : m_dummy(new Node<value_type>()), m_size(0) {}
+    Forward_list() : m_dummy(new Node<value_type>()), m_size(0) {
+    }
 
     Forward_list(const Forward_list &other) : Forward_list() {
         auto tail = m_dummy;
@@ -213,6 +214,17 @@ public:
         }
     }
 
+    template<typename... Args>
+    void emplace_after(iterator pos, Args &&... args) {
+        if (!pos.node()) throw std::out_of_range("Iterator out of range");
+
+        auto new_node = new Node<value_type>(std::forward<Args>(args)...);
+        new_node->next = pos.node()->next;
+        pos.node()->next = new_node;
+        ++m_size;
+    }
+
+
     void erase_after(iterator pos) {
         if (!pos.node()) throw std::out_of_range("Iterator out of range");
         if (!pos.node()->next) return;
@@ -271,7 +283,7 @@ public:
         }
     }
 
-    void swap(Forward_list& other) noexcept{
+    void swap(Forward_list &other) noexcept {
         std::swap(m_dummy, other.m_dummy);
         std::swap(m_size, other.m_size);
     }
@@ -314,18 +326,18 @@ public:
     }
 
     // Relational operators
-    auto operator<=>(const Forward_list& other) const {
+    auto operator<=>(const Forward_list &other) const {
         return std::lexicographical_compare_three_way(
             begin(), end(),
             other.begin(), other.end()
         );
     }
 
-    bool operator==(const Forward_list & other) const {
+    bool operator==(const Forward_list &other) const {
         return (*this <=> other) == 0;
     }
 
-    bool operator!=(const Forward_list & other) const {
+    bool operator!=(const Forward_list &other) const {
         return !(*this == other);
     }
 
@@ -375,7 +387,7 @@ private:
     }
 };
 
-template <typename T>
-void Swap(Forward_list<T>& lhs, Forward_list<T>& rhs) {
+template<typename T>
+void Swap(Forward_list<T> &lhs, Forward_list<T> &rhs) {
     lhs.swap(rhs);
 }
