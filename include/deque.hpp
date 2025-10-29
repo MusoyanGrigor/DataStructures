@@ -7,7 +7,7 @@
 template<typename T>
 class Deque {
 public:
-    Deque() : m_map_capacity(4), m_num_blocks(0) {
+    Deque() : m_map_capacity(4), m_num_blocks(0), m_size(0) {
         m_map = new T *[m_map_capacity];
         for (std::size_t i = 0; i < m_map_capacity; ++i) {
             m_map[i] = nullptr;
@@ -35,6 +35,7 @@ public:
             m_front_index = BLOCK_SIZE - 1;
         } else { --m_front_index; }
         m_map[m_front_block][m_front_index] = value;
+        ++m_size;
     }
 
     void push_back(const T &value) {
@@ -43,6 +44,7 @@ public:
             m_back_index = 0;
         } else { ++m_back_index; }
         m_map[m_back_block][m_back_index] = value;
+        ++m_size;
     }
 
     void pop_front() {
@@ -55,8 +57,8 @@ public:
             m_front_index = 0;
         } else { ++m_front_index; }
         if (m_num_blocks == 0) reset_indices();
+        --m_size;
     }
-
 
     void pop_back() {
         if (empty()) throw std::out_of_range("Deque is empty");
@@ -68,13 +70,16 @@ public:
             m_back_index = BLOCK_SIZE - 1;
         } else { --m_back_index; }
         if (m_num_blocks == 0) reset_indices();
+        --m_size;
     }
 
     bool empty() const noexcept {
-        return (m_front_block == m_back_block && m_back_index < m_front_index) ||
-               (m_num_blocks == 0);
+        return m_size == 0;
     }
 
+    std::size_t size() const noexcept {
+       return m_size;
+    }
 
 private:
     T **m_map;
@@ -82,6 +87,7 @@ private:
     std::size_t m_num_blocks;
     std::size_t m_front_block, m_back_block;
     std::size_t m_front_index, m_back_index;
+    std::size_t m_size;
 
     static constexpr size_t TARGET_BLOCK_BYTES = 512;
     static constexpr size_t BLOCK_SIZE = std::max(static_cast<std::size_t>(1), TARGET_BLOCK_BYTES / sizeof(T));
@@ -122,7 +128,7 @@ private:
         m_back_index = m_front_index - 1;
         m_front_block = m_back_block = m_map_capacity / 2;
 
-        if (!m_map[m_front_block]) {
+        if (m_size == 0) {
             m_map[m_front_block] = new T[BLOCK_SIZE];
             m_num_blocks = 1;
         }
