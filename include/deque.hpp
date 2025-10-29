@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <cstddef>
+#include <stdexcept>
 
 
 template<typename T>
@@ -22,7 +23,7 @@ public:
 
     ~Deque() {
         for (std::size_t i = 0; i < m_map_capacity; ++i) {
-            delete m_map[i];
+            delete[] m_map[i];
         }
 
         delete[] m_map;
@@ -44,6 +45,37 @@ public:
         m_map[m_back_block][m_back_index] = value;
     }
 
+    void pop_front() {
+        if (empty()) throw std::out_of_range("Deque is empty");
+        if (m_front_index == BLOCK_SIZE - 1) {
+            delete[] m_map[m_front_block];
+            m_map[m_front_block] = nullptr;
+            ++m_front_block;
+            --m_num_blocks;
+            m_front_index = 0;
+        } else { ++m_front_index; }
+        if (m_num_blocks == 0) reset_indices();
+    }
+
+
+    void pop_back() {
+        if (empty()) throw std::out_of_range("Deque is empty");
+        if (m_back_index == 0) {
+            delete[] m_map[m_back_block];
+            m_map[m_back_block] = nullptr;
+            --m_back_block;
+            --m_num_blocks;
+            m_back_index = BLOCK_SIZE - 1;
+        } else { --m_back_index; }
+        if (m_num_blocks == 0) reset_indices();
+    }
+
+    bool empty() const noexcept {
+        return (m_front_block == m_back_block && m_back_index < m_front_index) ||
+               (m_num_blocks == 0);
+    }
+
+
 private:
     T **m_map;
     std::size_t m_map_capacity;
@@ -57,11 +89,13 @@ private:
     void allocate_block_front() {
         if (m_front_block == 0) expand_map();
         m_map[--m_front_block] = new T[BLOCK_SIZE];
+        ++m_num_blocks;
     }
 
     void allocate_block_back() {
         if (m_back_block == m_map_capacity - 1) expand_map();
         m_map[++m_back_block] = new T[BLOCK_SIZE];
+        ++m_num_blocks;
     }
 
     void expand_map() {
@@ -81,5 +115,16 @@ private:
         delete[] m_map;
         m_map = new_map;
         m_map_capacity = new_capacity;
+    }
+
+    void reset_indices() {
+        m_front_index = BLOCK_SIZE / 2;
+        m_back_index = m_front_index - 1;
+        m_front_block = m_back_block = m_map_capacity / 2;
+
+        if (!m_map[m_front_block]) {
+            m_map[m_front_block] = new T[BLOCK_SIZE];
+            m_num_blocks = 1;
+        }
     }
 };
