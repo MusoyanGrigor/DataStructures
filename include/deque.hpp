@@ -155,6 +155,42 @@ public:
         return (*this)[size() - 1];
     }
 
+    // Capacity & size
+    size_type size() const noexcept {
+        return m_size;
+    }
+
+    bool empty() const noexcept {
+        return m_size == 0;
+    }
+
+    size_type max_size() const noexcept {
+        return std::numeric_limits<size_type>::max() / BLOCK_SIZE;
+    }
+
+    void shrink_to_fit() {
+        if (m_size == 0) {
+            cleanup();
+            reset_indices();
+            return;
+        }
+
+        const size_type used_blocks = m_back_block - m_front_block + 1;
+        const size_type new_capacity = std::max(static_cast<size_type>(4), used_blocks);
+
+        value_type** new_map = new pointer[new_capacity]();
+        for (size_type i = 0; i < used_blocks; ++i) {
+            new_map[i] = m_map[m_front_block + i];
+        }
+
+        delete[] m_map;
+        m_map = new_map;
+        m_map_capacity = new_capacity;
+        m_front_block = 0;
+        m_back_block = used_blocks - 1;
+    }
+
+    // Modifiers
     void push_front(const_reference value) {
         if (m_front_index == 0) {
             allocate_block_front();
@@ -197,14 +233,6 @@ public:
         } else { --m_back_index; }
         if (m_num_blocks == 0) reset_indices();
         --m_size;
-    }
-
-    bool empty() const noexcept {
-        return m_size == 0;
-    }
-
-    size_type size() const noexcept {
-       return m_size;
     }
 
     void swap(Deque &other) noexcept {
