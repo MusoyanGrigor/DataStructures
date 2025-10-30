@@ -3,9 +3,6 @@
 #include <cstddef>
 #include <stdexcept>
 
-#include "node.hpp"
-
-
 template<typename T>
 class Deque {
 public:
@@ -49,6 +46,21 @@ public:
         other.m_front_index = 0;
         other.m_back_index = 0;
         other.m_size = 0;
+    }
+
+    Deque& operator=(const Deque& other) {
+        if (this != &other) {
+            Deque temp(other);
+            this->swap(temp);
+        }
+        return *this;
+    }
+
+    Deque& operator=(Deque&& other) noexcept {
+        if (this != &other) {
+            this->swap(other);
+        }
+        return *this;
     }
 
     ~Deque() {
@@ -105,6 +117,17 @@ public:
 
     std::size_t size() const noexcept {
        return m_size;
+    }
+
+    void swap(Deque &other) noexcept {
+        std::swap(m_map, other.m_map);
+        std::swap(m_map_capacity, other.m_map_capacity);
+        std::swap(m_num_blocks, other.m_num_blocks);
+        std::swap(m_front_block, other.m_front_block);
+        std::swap(m_back_block, other.m_back_block);
+        std::swap(m_front_index, other.m_front_index);
+        std::swap(m_back_index, other.m_back_index);
+        std::swap(m_size, other.m_size);
     }
 
 private:
