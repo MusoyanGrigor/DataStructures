@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../iterator_tags.hpp"
-#include "../iterator_base.hpp"
-#include "../node.hpp"
+#include "iterator_tags.hpp"
+#include "iterator_base.hpp"
+#include "../sequence/internal/node.hpp"
 
 // Input iterator
 template<typename T>
