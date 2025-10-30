@@ -191,21 +191,23 @@ public:
     }
 
     // Modifiers
-    void push_front(const_reference value) {
+    template<typename U>
+    void push_front(U&& value) {
         if (m_front_index == 0) {
             allocate_block_front();
             m_front_index = BLOCK_SIZE - 1;
         } else { --m_front_index; }
-        m_map[m_front_block][m_front_index] = value;
+        m_map[m_front_block][m_front_index] = std::forward<U>(value);
         ++m_size;
     }
 
-    void push_back(const_reference value) {
+    template<typename U>
+    void push_back(U&& value) {
         if (m_back_index == BLOCK_SIZE - 1) {
             allocate_block_back();
             m_back_index = 0;
         } else { ++m_back_index; }
-        m_map[m_back_block][m_back_index] = value;
+        m_map[m_back_block][m_back_index] = std::forward<U>(value);
         ++m_size;
     }
 
