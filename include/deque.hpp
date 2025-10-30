@@ -8,14 +8,26 @@
 template<typename T>
 class Deque {
 public:
+    using value_type = T;
+    using pointer = T*;
+    using const_pointer = const T*;
+    using reference = T&;
+    using const_reference = const T&;
+    using size_type = std::size_t;
+    using iterator = Random_access_iterator<T>;
+    using const_iterator = Random_access_iterator<const T>;
+    using reverse_iterator = Reverse_random_access_iterator<T>;
+    using const_reverse_iterator = Reverse_random_access_iterator<const T>;
+
+    // Constructors
     Deque() : m_map_capacity(4), m_num_blocks(0), m_size(0) {
-        m_map = new T *[m_map_capacity];
-        for (std::size_t i = 0; i < m_map_capacity; ++i) {
+        m_map = new pointer[m_map_capacity];
+        for (size_type i = 0; i < m_map_capacity; ++i) {
             m_map[i] = nullptr;
         }
 
         m_front_block = m_back_block = m_map_capacity / 2;
-        m_map[m_front_block] = new T[BLOCK_SIZE];
+        m_map[m_front_block] = new value_type[BLOCK_SIZE];
         ++m_num_blocks;
 
         m_front_index = BLOCK_SIZE / 2;
@@ -25,10 +37,10 @@ public:
     Deque(const Deque &other) : m_map_capacity(other.m_map_capacity), m_num_blocks(other.m_num_blocks),
     m_front_block(other.m_front_block), m_back_block(other.m_back_block), m_front_index(other.m_front_index),
     m_back_index(other.m_back_index), m_size(other.m_size) {
-        m_map = new T *[m_map_capacity];
-        for (std::size_t i = 0; i < m_map_capacity; ++i) {
+        m_map = new pointer[m_map_capacity];
+        for (size_type i = 0; i < m_map_capacity; ++i) {
             if (other.m_map[i]) {
-                m_map[i] = new T[BLOCK_SIZE];
+                m_map[i] = new value_type[BLOCK_SIZE];
                 std::copy(other.m_map[i], other.m_map[i] + BLOCK_SIZE, m_map[i]);
             } else {
                 m_map[i] = nullptr;
@@ -50,20 +62,20 @@ public:
         other.m_size = 0;
     }
 
-    Deque(std::initializer_list<T> i_list) : Deque() {
+    Deque(std::initializer_list<value_type> i_list) : Deque() {
         for (const auto& value : i_list) {
             push_back(value);
         }
     }
 
-    explicit Deque(const std::size_t count) : Deque() {
-        for (std::size_t i = 0; i < count; ++i) {
-            push_back(T());
+    explicit Deque(const size_type count) : Deque() {
+        for (size_type i = 0; i < count; ++i) {
+            push_back(value_type());
         }
     }
 
-    Deque(const std::size_t count, const T& value) : Deque() {
-        for (std::size_t i = 0; i < count; ++i) {
+    Deque(const size_type count, const_reference value) : Deque() {
+        for (size_type i = 0; i < count; ++i) {
             push_back(value);
         }
     }
@@ -75,6 +87,7 @@ public:
         }
     }
 
+    // Assignment operator
     Deque& operator=(const Deque& other) {
         if (this != &other) {
             Deque temp(other);
@@ -90,17 +103,18 @@ public:
         return *this;
     }
 
-    Deque& operator=(std::initializer_list<T> i_list) {
+    Deque& operator=(std::initializer_list<value_type> i_list) {
         Deque temp(i_list);
         this->swap(temp);
         return *this;
     }
 
+    // Destructor
     ~Deque() {
         cleanup();
     }
 
-    void push_front(const T &value) {
+    void push_front(const_reference value) {
         if (m_front_index == 0) {
             allocate_block_front();
             m_front_index = BLOCK_SIZE - 1;
@@ -109,7 +123,7 @@ public:
         ++m_size;
     }
 
-    void push_back(const T &value) {
+    void push_back(const_reference value) {
         if (m_back_index == BLOCK_SIZE - 1) {
             allocate_block_back();
             m_back_index = 0;
@@ -148,7 +162,7 @@ public:
         return m_size == 0;
     }
 
-    std::size_t size() const noexcept {
+    size_type size() const noexcept {
        return m_size;
     }
 
@@ -164,37 +178,37 @@ public:
     }
 
 private:
-    T **m_map;
-    std::size_t m_map_capacity;
-    std::size_t m_num_blocks;
-    std::size_t m_front_block, m_back_block;
-    std::size_t m_front_index, m_back_index;
-    std::size_t m_size;
+    value_type **m_map;
+    size_type m_map_capacity;
+    size_type m_num_blocks;
+    size_type m_front_block, m_back_block;
+    size_type m_front_index, m_back_index;
+    size_type m_size;
 
     static constexpr size_t TARGET_BLOCK_BYTES = 512;
-    static constexpr size_t BLOCK_SIZE = std::max(static_cast<std::size_t>(1), TARGET_BLOCK_BYTES / sizeof(T));
+    static constexpr size_t BLOCK_SIZE = std::max(static_cast<size_type>(1), TARGET_BLOCK_BYTES / sizeof(value_type));
 
     void allocate_block_front() {
         if (m_front_block == 0) expand_map();
-        m_map[--m_front_block] = new T[BLOCK_SIZE];
+        m_map[--m_front_block] = new value_type[BLOCK_SIZE];
         ++m_num_blocks;
     }
 
     void allocate_block_back() {
         if (m_back_block == m_map_capacity - 1) expand_map();
-        m_map[++m_back_block] = new T[BLOCK_SIZE];
+        m_map[++m_back_block] = new value_type[BLOCK_SIZE];
         ++m_num_blocks;
     }
 
     void expand_map() {
-        const std::size_t new_capacity = m_map_capacity * 2;
-        T **new_map = new T *[new_capacity];
-        const std::size_t shift = new_capacity / 4;
-        for (std::size_t i = 0; i < shift; ++i) {
+        const size_type new_capacity = m_map_capacity * 2;
+        value_type **new_map = new pointer[new_capacity];
+        const size_type shift = new_capacity / 4;
+        for (size_type i = 0; i < shift; ++i) {
             new_map[i] = nullptr;
         }
 
-        for (std::size_t i = 0; i < m_map_capacity; ++i) {
+        for (size_type i = 0; i < m_map_capacity; ++i) {
             new_map[i + shift] = m_map[i];
         }
 
@@ -211,14 +225,14 @@ private:
         m_front_block = m_back_block = m_map_capacity / 2;
 
         if (m_size == 0) {
-            m_map[m_front_block] = new T[BLOCK_SIZE];
+            m_map[m_front_block] = new value_type[BLOCK_SIZE];
             m_num_blocks = 1;
         }
     }
 
     void cleanup() noexcept {
         if (m_map) {
-            for (std::size_t i = 0; i < m_map_capacity; ++i) {
+            for (size_type i = 0; i < m_map_capacity; ++i) {
                 delete[] m_map[i];
             }
             delete[] m_map;
