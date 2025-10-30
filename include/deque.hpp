@@ -21,10 +21,7 @@ public:
 
     // Constructors
     Deque() : m_map_capacity(4), m_num_blocks(0), m_size(0) {
-        m_map = new pointer[m_map_capacity];
-        for (size_type i = 0; i < m_map_capacity; ++i) {
-            m_map[i] = nullptr;
-        }
+        m_map = new pointer[m_map_capacity]();
 
         m_front_block = m_back_block = m_map_capacity / 2;
         m_map[m_front_block] = new value_type[BLOCK_SIZE];
@@ -112,6 +109,7 @@ public:
     // Destructor
     ~Deque() {
         cleanup();
+        delete[] m_map;
     }
 
     // Element access
@@ -171,7 +169,6 @@ public:
     void shrink_to_fit() {
         if (m_size == 0) {
             cleanup();
-            reset_indices();
             return;
         }
 
@@ -252,9 +249,9 @@ public:
         cleanup();
     }
 
+
     void assign(const size_type count, const_reference value) {
         cleanup();
-        reset_indices();
         for (size_type i = 0; i < count; ++i) {
             push_back(value);
         }
@@ -267,7 +264,6 @@ public:
     template<typename InputIt, typename = std::enable_if_t<it::is_iterator<InputIt>::value>>
     void assign(InputIt first, InputIt last) {
         cleanup();
-        reset_indices();
         for (auto it = first; it != last; ++it) {
             push_back(*it);
         }
@@ -347,11 +343,8 @@ private:
 
     void expand_map() {
         const size_type new_capacity = m_map_capacity * 2;
-        value_type **new_map = new pointer[new_capacity];
+        value_type **new_map = new pointer[new_capacity]();
         const size_type shift = new_capacity / 4;
-        for (size_type i = 0; i < shift; ++i) {
-            new_map[i] = nullptr;
-        }
 
         for (size_type i = 0; i < m_map_capacity; ++i) {
             new_map[i + shift] = m_map[i];
@@ -380,7 +373,9 @@ private:
             for (size_type i = 0; i < m_map_capacity; ++i) {
                 delete[] m_map[i];
             }
-            delete[] m_map;
+            m_size = 0;
+            m_num_blocks = 0;
+            reset_indices();
         }
     }
 };
