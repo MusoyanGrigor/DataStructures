@@ -50,6 +50,12 @@ public:
         other.m_size = 0;
     }
 
+    Deque(std::initializer_list<T> i_list) : Deque() {
+        for (const auto& value : i_list) {
+            push_back(value);
+        }
+    }
+
     explicit Deque(const std::size_t count) : Deque() {
         for (std::size_t i = 0; i < count; ++i) {
             push_back(T());
@@ -69,12 +75,6 @@ public:
         }
     }
 
-    Deque(std::initializer_list<T> i_list) : Deque() {
-        for (const auto& value : i_list) {
-            push_back(value);
-        }
-    }
-
     Deque& operator=(const Deque& other) {
         if (this != &other) {
             Deque temp(other);
@@ -87,6 +87,12 @@ public:
         if (this != &other) {
             this->swap(other);
         }
+        return *this;
+    }
+
+    Deque& operator=(std::initializer_list<T> i_list) {
+        Deque temp(i_list);
+        this->swap(temp);
         return *this;
     }
 
