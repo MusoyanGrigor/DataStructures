@@ -3,7 +3,7 @@
 #include <iostream>
 #include <random>
 
-#include "iterator.hpp"
+#include "../iterator.hpp"
 
 template <typename T, std::size_t N>
 class Array {

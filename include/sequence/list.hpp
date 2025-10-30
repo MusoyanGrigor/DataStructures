@@ -3,8 +3,8 @@
 #include <cstddef>
 #include <limits>
 
-#include "algorithm.hpp"
-#include "node.hpp"
+#include "../iterator/iterator_utils.hpp"
+#include "internal/node.hpp"
 
 template<typename T>
 class List {

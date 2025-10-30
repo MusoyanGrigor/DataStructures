@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <stdexcept>
 
-#include "algorithm.hpp"
+#include "../iterator/iterator_utils.hpp"
 
 template<typename T>
 class Deque {
