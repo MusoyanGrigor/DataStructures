@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <stdexcept>
 
+#include "algorithm.hpp"
+
 template<typename T>
 class Deque {
 public:
@@ -46,6 +48,31 @@ public:
         other.m_front_index = 0;
         other.m_back_index = 0;
         other.m_size = 0;
+    }
+
+    explicit Deque(const std::size_t count) : Deque() {
+        for (std::size_t i = 0; i < count; ++i) {
+            push_back(T());
+        }
+    }
+
+    Deque(const std::size_t count, const T& value) : Deque() {
+        for (std::size_t i = 0; i < count; ++i) {
+            push_back(value);
+        }
+    }
+
+    template<typename InputIt, typename = std::enable_if_t<it::is_iterator<InputIt>::value>>
+    Deque(InputIt first, InputIt last) : Deque() {
+        for (auto it = first; it != last; ++it) {
+            push_back(*it);
+        }
+    }
+
+    Deque(std::initializer_list<T> i_list) : Deque() {
+        for (const auto& value : i_list) {
+            push_back(value);
+        }
     }
 
     Deque& operator=(const Deque& other) {
