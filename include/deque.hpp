@@ -295,27 +295,27 @@ public:
     }
 
     reverse_iterator rbegin() {
-        return reverse_iterator(end());
+        return reverse_iterator(&m_map[m_back_block][m_back_index + 1]);
     }
 
     const_reverse_iterator rbegin() const {
-        return const_reverse_iterator(end());
+        return const_reverse_iterator(&m_map[m_back_block][m_back_index + 1]);
     }
 
     const_reverse_iterator crbegin() const {
-        return const_reverse_iterator(cend());
+        return const_reverse_iterator(&m_map[m_back_block][m_back_index + 1]);
     }
 
     reverse_iterator rend() {
-        return reverse_iterator(begin());
+        return reverse_iterator(&m_map[m_front_block][m_front_index]);
     }
 
     const_reverse_iterator rend() const {
-        return const_reverse_iterator(begin());
+        return const_reverse_iterator(&m_map[m_front_block][m_front_index]);
     }
 
     const_reverse_iterator crend() const {
-        return const_reverse_iterator(cbegin());
+        return const_reverse_iterator(&m_map[m_front_block][m_front_index]);
     }
 
 private:
