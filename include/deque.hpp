@@ -248,6 +248,31 @@ public:
         std::swap(m_size, other.m_size);
     }
 
+    void clear() noexcept {
+        cleanup();
+    }
+
+    void assign(const size_type count, const_reference value) {
+        cleanup();
+        reset_indices();
+        for (size_type i = 0; i < count; ++i) {
+            push_back(value);
+        }
+    }
+
+    void assign(std::initializer_list<value_type> i_list) {
+        *this = i_list;
+    }
+
+    template<typename InputIt, typename = std::enable_if_t<it::is_iterator<InputIt>::value>>
+    void assign(InputIt first, InputIt last) {
+        cleanup();
+        reset_indices();
+        for (auto it = first; it != last; ++it) {
+            push_back(*it);
+        }
+    }
+
     // Iterators
     iterator begin() {
         return iterator(&m_map[m_front_block][m_front_index]);
