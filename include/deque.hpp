@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <stdexcept>
 
+#include "node.hpp"
+
 
 template<typename T>
 class Deque {
@@ -21,12 +23,36 @@ public:
         m_back_index = m_front_index - 1;
     }
 
-    ~Deque() {
+    Deque(const Deque &other) : m_map_capacity(other.m_map_capacity), m_num_blocks(other.m_num_blocks),
+    m_front_block(other.m_front_block), m_back_block(other.m_back_block), m_front_index(other.m_front_index),
+    m_back_index(other.m_back_index), m_size(other.m_size) {
+        m_map = new T *[m_map_capacity];
         for (std::size_t i = 0; i < m_map_capacity; ++i) {
-            delete[] m_map[i];
+            if (other.m_map[i]) {
+                m_map[i] = new T[BLOCK_SIZE];
+                std::copy(other.m_map[i], other.m_map[i] + BLOCK_SIZE, m_map[i]);
+            } else {
+                m_map[i] = nullptr;
+            }
         }
+    }
 
-        delete[] m_map;
+    Deque(Deque&& other) noexcept
+    : m_map(other.m_map), m_map_capacity(other.m_map_capacity), m_num_blocks(other.m_num_blocks),
+      m_front_block(other.m_front_block), m_back_block(other.m_back_block), m_front_index(other.m_front_index),
+      m_back_index(other.m_back_index), m_size(other.m_size) {
+        other.m_map = nullptr;
+        other.m_map_capacity = 0;
+        other.m_num_blocks = 0;
+        other.m_front_block = 0;
+        other.m_back_block = 0;
+        other.m_front_index = 0;
+        other.m_back_index = 0;
+        other.m_size = 0;
+    }
+
+    ~Deque() {
+        cleanup();
     }
 
     void push_front(const T &value) {
@@ -131,6 +157,15 @@ private:
         if (m_size == 0) {
             m_map[m_front_block] = new T[BLOCK_SIZE];
             m_num_blocks = 1;
+        }
+    }
+
+    void cleanup() noexcept {
+        if (m_map) {
+            for (std::size_t i = 0; i < m_map_capacity; ++i) {
+                delete[] m_map[i];
+            }
+            delete[] m_map;
         }
     }
 };
