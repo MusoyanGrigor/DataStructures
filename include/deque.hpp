@@ -409,3 +409,8 @@ private:
         }
     }
 };
+
+template<typename T>
+void swap(Deque<T>& lhs, Deque<T>& rhs) noexcept {
+    lhs.swap(rhs);
+}
