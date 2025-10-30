@@ -218,6 +218,55 @@ public:
         std::swap(m_size, other.m_size);
     }
 
+    // Iterators
+    iterator begin() {
+        return iterator(&m_map[m_front_block][m_front_index]);
+    }
+
+    const_iterator begin() const {
+        return const_iterator(&m_map[m_front_block][m_front_index]);
+    }
+
+    const_iterator cbegin() const {
+        return const_iterator(&m_map[m_front_block][m_front_index]);
+    }
+
+    iterator end() {
+        return iterator(&m_map[m_back_block][m_back_index + 1]);
+    }
+
+    const_iterator end() const {
+        return const_iterator(&m_map[m_back_block][m_back_index + 1]);
+    }
+
+    const_iterator cend() const {
+        return const_iterator(&m_map[m_back_block][m_back_index + 1]);
+    }
+
+    reverse_iterator rbegin() {
+        return reverse_iterator(end());
+    }
+
+    const_reverse_iterator rbegin() const {
+        return const_reverse_iterator(end());
+    }
+
+    const_reverse_iterator crbegin() const {
+        return const_reverse_iterator(cend());
+    }
+
+    reverse_iterator rend() {
+        return reverse_iterator(begin());
+    }
+
+    const_reverse_iterator rend() const {
+        return const_reverse_iterator(begin());
+    }
+
+    const_reverse_iterator crend() const {
+        return const_reverse_iterator(cbegin());
+    }
+
 private:
     value_type **m_map;
     size_type m_map_capacity;
