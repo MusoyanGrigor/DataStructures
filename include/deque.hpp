@@ -114,6 +114,47 @@ public:
         cleanup();
     }
 
+    // Element access
+    reference operator[](const size_type index) {
+        const size_type absolute_position = m_front_index + index;
+        const size_type block_number = absolute_position / BLOCK_SIZE + m_front_block;
+        const size_type offset_in_block = absolute_position % BLOCK_SIZE;
+        return m_map[block_number][offset_in_block];
+    }
+
+    const_reference operator[](const size_type index) const {
+        const size_type absolute_position = m_front_index + index;
+        const size_type block_number = absolute_position / BLOCK_SIZE + m_front_block;
+        const size_type offset_in_block = absolute_position % BLOCK_SIZE;
+        return m_map[block_number][offset_in_block];
+    }
+
+    reference at(const size_type index) {
+        if (index >= size()) throw std::out_of_range("Index out of range");
+        return (*this)[index];
+    }
+
+    const_reference at(const size_type index) const {
+        if (index >= size()) throw std::out_of_range("Index out of range");
+        return (*this)[index];
+    }
+
+    reference front() {
+        return (*this)[0];
+    }
+
+    const_reference front() const {
+        return (*this)[0];
+    }
+
+    reference back() {
+        return (*this)[size() - 1];
+    }
+
+    const_reference back() const {
+        return (*this)[size() - 1];
+    }
+
     void push_front(const_reference value) {
         if (m_front_index == 0) {
             allocate_block_front();
