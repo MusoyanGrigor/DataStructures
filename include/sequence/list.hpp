@@ -279,13 +279,34 @@ public:
         current->prev = prev_node;
     }
 
-
     template<typename U = value_type>
     void resize(const size_type count, U&& value = U()) {
         while (m_size < count)
             push_back(std::forward<U>(value));
         while (m_size > count)
             pop_back();
+    }
+
+    void assign(const size_type count, const_reference value) {
+        clear_data();
+        for (size_type i = 0; i < count; ++i) {
+            push_back(value);
+        }
+    }
+
+    void assign(std::initializer_list<value_type> i_list) {
+        clear_data();
+        for (auto &value: i_list) {
+            push_back(value);
+        }
+    }
+
+    template<typename InputIt, typename = std::enable_if_t<it::is_iterator<InputIt>::value> >
+    void assign(InputIt first, InputIt last) {
+        clear_data();
+        for (auto it = first; it != last; ++it) {
+            push_back(*it);
+        }
     }
 
     void clear() {
