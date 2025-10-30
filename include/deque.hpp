@@ -335,6 +335,19 @@ public:
         return const_reverse_iterator(&m_map[m_front_block][m_front_index]);
     }
 
+    // Relational operators
+    auto operator<=>(const Deque &other) const {
+        return std::lexicographical_compare_three_way(cbegin(), cend(), other.cbegin(), other.cend());
+    }
+
+    bool operator==(const Deque &other) const {
+        return *this<=>other == 0;
+    }
+
+    bool operator!=(const Deque &other) const {
+        return !(*this==other);
+    }
+
 private:
     value_type **m_map;
     size_type m_map_capacity;
