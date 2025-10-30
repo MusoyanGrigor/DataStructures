@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <cstddef>
+#include <limits>
 #include <stdexcept>
 
 #include "../iterator/iterator_utils.hpp"

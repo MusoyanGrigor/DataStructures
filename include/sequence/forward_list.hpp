@@ -4,9 +4,8 @@
 #include <limits>
 #include <ranges>
 
-#include "../algorithm.hpp"
-#include "../node.hpp"
-#include "../iterator.hpp"
+#include "iterator/iterator.hpp"
+#include "iterator/iterator_utils.hpp"
 
 template<typename T>
 class Forward_list {

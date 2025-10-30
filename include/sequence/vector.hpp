@@ -6,8 +6,8 @@
 #include <random>
 #include <stdexcept>
 
-#include "../iterator.hpp"
-#include "../iterator_utils.hpp"
+#include "iterator/iterator.hpp"
+#include "iterator/iterator_utils.hpp"
 
 template <typename T>
 class Vector {
