@@ -234,6 +234,23 @@ public:
         --m_size;
     }
 
+    template<typename... Args>
+    void emplace_front(Args&&... args) {
+        push_front(std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    void emplace_back(Args&&... args) {
+        push_back(std::forward<Args>(args)...);
+    }
+
+    void resize(const size_type new_size, reference value = value_type()) {
+        while (new_size > m_size)
+            push_back(value);
+        while (new_size < m_size)
+            pop_back();
+    }
+
     void swap(Deque &other) noexcept {
         std::swap(m_map, other.m_map);
         std::swap(m_map_capacity, other.m_map_capacity);
