@@ -4,31 +4,36 @@
 
 #include "sequence/deque.hpp"
 
-template<typename T, typename Container = Deque<T>>
+template<typename T, typename Container = Deque<T> >
 class Stack {
 public:
+    using value_type = Container::value_type;
+    using reference = Container::reference;
+    using const_reference = Container::const_reference;
+    using size_type = Container::size_type;
+
     Stack() = default;
 
-    explicit Stack(const Container& container) {
+    explicit Stack(const Container &container) {
         m_container = container;
     }
 
-    Stack(const Stack& other) {
+    Stack(const Stack &other) {
         m_container = other.m_container;
     }
 
-    Stack(Stack&& other) noexcept {
+    Stack(Stack &&other) noexcept {
         m_container = std::move(other.m_container);
     }
 
-    Stack& operator=(const Stack& other) {
+    Stack &operator=(const Stack &other) {
         if (this != &other) {
             m_container = other.m_container;
         }
         return *this;
     }
 
-    Stack& operator=(Stack&& other) noexcept {
+    Stack &operator=(Stack &&other) noexcept {
         if (this != &other) {
             m_container = std::move(other.m_container);
         }
@@ -37,11 +42,11 @@ public:
 
     ~Stack() = default;
 
-    T& top() {
+    reference top() {
         return m_container.back();
     }
 
-    const T& top() const {
+    const_reference top() const {
         return m_container.back();
     }
 
@@ -49,12 +54,12 @@ public:
         return m_container.empty();
     }
 
-    std::size_t size() const {
+    size_type size() const {
         return m_container.size();
     }
 
     template<typename U>
-    void push(U&& value) {
+    void push(U &&value) {
         m_container.push_back(std::forward<U>(value));
     }
 
@@ -63,11 +68,11 @@ public:
     }
 
     template<typename... Args>
-    void emplace(Args&&... args) {
+    void emplace(Args &&... args) {
         m_container.emplace_back(std::forward<Args>(args)...);
     }
 
-    void swap(Stack& other) noexcept {
+    void swap(Stack &other) noexcept {
         std::swap(m_container, other.m_container);
     }
 
@@ -76,6 +81,6 @@ private:
 };
 
 template<typename T>
-void swap(Stack<T>& lhs, Stack<T>& rhs) noexcept {
+void swap(Stack<T> &lhs, Stack<T> &rhs) noexcept {
     lhs.swap(rhs);
 }
