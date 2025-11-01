@@ -1,7 +1,5 @@
 #pragma once
 
-#include <stack>
-
 #include "sequence/deque.hpp"
 
 template<typename T, typename Container = Deque<T> >
@@ -12,6 +10,7 @@ public:
     using const_reference = Container::const_reference;
     using size_type = Container::size_type;
 
+    // Constructors
     Stack() = default;
 
     explicit Stack(const Container &container) {
@@ -26,6 +25,7 @@ public:
         m_container = std::move(other.m_container);
     }
 
+    // Assignment operator
     Stack &operator=(const Stack &other) {
         if (this != &other) {
             m_container = other.m_container;
@@ -40,8 +40,10 @@ public:
         return *this;
     }
 
+    // Destructor
     ~Stack() = default;
 
+    // Element access
     reference top() {
         return m_container.back();
     }
@@ -58,6 +60,7 @@ public:
         return m_container.size();
     }
 
+    // Modifiers
     template<typename U>
     void push(U &&value) {
         m_container.push_back(std::forward<U>(value));

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "sequence/deque.hpp"
 
 template<typename T, typename Container = Deque<T>>
