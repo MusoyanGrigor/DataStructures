@@ -1,4 +1,5 @@
 #pragma once
+
 #include <algorithm>
 #include <cstddef>
 #include <limits>
@@ -10,10 +11,10 @@ template<typename T>
 class Deque {
 public:
     using value_type = T;
-    using pointer = T*;
-    using const_pointer = const T*;
-    using reference = T&;
-    using const_reference = const T&;
+    using pointer = T *;
+    using const_pointer = const T *;
+    using reference = T &;
+    using const_reference = const T &;
     using size_type = std::size_t;
     using iterator = Random_access_iterator<T>;
     using const_iterator = Random_access_iterator<const T>;
@@ -33,8 +34,9 @@ public:
     }
 
     Deque(const Deque &other) : m_map_capacity(other.m_map_capacity), m_num_blocks(other.m_num_blocks),
-    m_front_block(other.m_front_block), m_back_block(other.m_back_block), m_front_index(other.m_front_index),
-    m_back_index(other.m_back_index), m_size(other.m_size) {
+                                m_front_block(other.m_front_block), m_back_block(other.m_back_block),
+                                m_front_index(other.m_front_index),
+                                m_back_index(other.m_back_index), m_size(other.m_size) {
         m_map = new pointer[m_map_capacity];
         for (size_type i = 0; i < m_map_capacity; ++i) {
             if (other.m_map[i]) {
@@ -46,10 +48,10 @@ public:
         }
     }
 
-    Deque(Deque&& other) noexcept
-    : m_map(other.m_map), m_map_capacity(other.m_map_capacity), m_num_blocks(other.m_num_blocks),
-      m_front_block(other.m_front_block), m_back_block(other.m_back_block), m_front_index(other.m_front_index),
-      m_back_index(other.m_back_index), m_size(other.m_size) {
+    Deque(Deque &&other) noexcept
+        : m_map(other.m_map), m_map_capacity(other.m_map_capacity), m_num_blocks(other.m_num_blocks),
+          m_front_block(other.m_front_block), m_back_block(other.m_back_block), m_front_index(other.m_front_index),
+          m_back_index(other.m_back_index), m_size(other.m_size) {
         other.m_map = nullptr;
         other.m_map_capacity = 0;
         other.m_num_blocks = 0;
@@ -61,7 +63,7 @@ public:
     }
 
     Deque(std::initializer_list<value_type> i_list) : Deque() {
-        for (const auto& value : i_list) {
+        for (const auto &value: i_list) {
             push_back(value);
         }
     }
@@ -78,7 +80,7 @@ public:
         }
     }
 
-    template<typename InputIt, typename = std::enable_if_t<it::is_iterator<InputIt>::value>>
+    template<typename InputIt, typename = std::enable_if_t<it::is_iterator<InputIt>::value> >
     Deque(InputIt first, InputIt last) : Deque() {
         for (auto it = first; it != last; ++it) {
             push_back(*it);
@@ -86,7 +88,7 @@ public:
     }
 
     // Assignment operator
-    Deque& operator=(const Deque& other) {
+    Deque &operator=(const Deque &other) {
         if (this != &other) {
             Deque temp(other);
             this->swap(temp);
@@ -94,14 +96,14 @@ public:
         return *this;
     }
 
-    Deque& operator=(Deque&& other) noexcept {
+    Deque &operator=(Deque &&other) noexcept {
         if (this != &other) {
             this->swap(other);
         }
         return *this;
     }
 
-    Deque& operator=(std::initializer_list<value_type> i_list) {
+    Deque &operator=(std::initializer_list<value_type> i_list) {
         Deque temp(i_list);
         this->swap(temp);
         return *this;
@@ -176,7 +178,7 @@ public:
         const size_type used_blocks = m_back_block - m_front_block + 1;
         const size_type new_capacity = std::max(static_cast<size_type>(4), used_blocks);
 
-        value_type** new_map = new pointer[new_capacity]();
+        value_type **new_map = new pointer[new_capacity]();
         for (size_type i = 0; i < used_blocks; ++i) {
             new_map[i] = m_map[m_front_block + i];
         }
@@ -190,7 +192,7 @@ public:
 
     // Modifiers
     template<typename U>
-    void push_front(U&& value) {
+    void push_front(U &&value) {
         if (m_front_index == 0) {
             allocate_block_front();
             m_front_index = BLOCK_SIZE - 1;
@@ -200,7 +202,7 @@ public:
     }
 
     template<typename U>
-    void push_back(U&& value) {
+    void push_back(U &&value) {
         if (m_back_index == BLOCK_SIZE - 1) {
             allocate_block_back();
             m_back_index = 0;
@@ -236,14 +238,31 @@ public:
     }
 
     template<typename... Args>
-    void emplace_front(Args&&... args) {
+    void emplace_front(Args &&... args) {
         push_front(std::forward<Args>(args)...);
     }
 
     template<typename... Args>
-    void emplace_back(Args&&... args) {
+    void emplace_back(Args &&... args) {
         push_back(std::forward<Args>(args)...);
     }
+
+    template<typename U>
+    void insert(iterator pos, U &&value) {
+        size_type index = pos - begin();
+        if (index == 0) {
+            push_front(std::forward<U>(value));
+        } else if (index == m_size) {
+            push_back(std::forward<U>(value));
+        } else {
+            push_back(back());
+            for (size_type i = m_size - 2; i > index - 1; --i) {
+                (*this)[i + 1] = (*this)[i];
+            }
+            (*this)[index] = std::forward<U>(value);
+        }
+    }
+
 
     void resize(const size_type new_size, reference value = value_type()) {
         while (new_size > m_size)
@@ -279,7 +298,7 @@ public:
         *this = i_list;
     }
 
-    template<typename InputIt, typename = std::enable_if_t<it::is_iterator<InputIt>::value>>
+    template<typename InputIt, typename = std::enable_if_t<it::is_iterator<InputIt>::value> >
     void assign(InputIt first, InputIt last) {
         cleanup();
         for (auto it = first; it != last; ++it) {
@@ -342,11 +361,11 @@ public:
     }
 
     bool operator==(const Deque &other) const {
-        return *this<=>other == 0;
+        return *this <=> other == 0;
     }
 
     bool operator!=(const Deque &other) const {
-        return !(*this==other);
+        return !(*this == other);
     }
 
 private:
@@ -412,6 +431,6 @@ private:
 };
 
 template<typename T>
-void swap(Deque<T>& lhs, Deque<T>& rhs) noexcept {
+void swap(Deque<T> &lhs, Deque<T> &rhs) noexcept {
     lhs.swap(rhs);
 }
