@@ -263,7 +263,6 @@ public:
         }
     }
 
-
     void resize(const size_type new_size, reference value = value_type()) {
         while (new_size > m_size)
             push_back(value);
