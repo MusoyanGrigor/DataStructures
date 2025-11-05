@@ -7,10 +7,11 @@
 template<typename T>
 class Binary_tree {
 public:
+    // Constructors
     Binary_tree() : m_root(nullptr), m_size(0) {}
 
     Binary_tree(const Binary_tree& other) : Binary_tree() {
-        m_root = copy_node(other.m_root);
+        m_root = copy_nodes(other.m_root);
         m_size = other.m_size;
     }
 
@@ -19,10 +20,11 @@ public:
         other.m_size = 0;
     }
 
+    // Assignment operator
     Binary_tree& operator=(const Binary_tree& other) {
         if (this != &other) {
             clear_data();
-            m_root = copy_node(other.m_root);
+            m_root = copy_nodes(other.m_root);
             m_size = other.m_size;
         }
         return *this;
@@ -39,10 +41,12 @@ public:
         return *this;
     }
 
+    // Destructor
     ~Binary_tree() {
         clear_data(m_root);
     }
 
+    // Modifiers
     void insert(const T& value) {
         auto new_node = new TNode<T>(value);
         if (!m_root) {
@@ -77,6 +81,8 @@ public:
         m_size = 0;
     }
 
+
+    // Observers
     [[nodiscard]] std::size_t size() const {
         return m_size;
     }
@@ -98,7 +104,7 @@ public:
         return false;
     }
 
-    const T& max() {
+    const T& max() const {
         if (!m_root) throw std::out_of_range("Tree is empty");
         TNode<T>* current = m_root;
         while (current->right) {
@@ -107,7 +113,7 @@ public:
         return current->value;
     }
 
-    const T& min() {
+    const T& min() const {
         if (!m_root) throw std::out_of_range("Tree is empty");
         TNode<T>* current = m_root;
         while (current->left) {
@@ -116,6 +122,15 @@ public:
         return current->value;
     }
 
+    [[nodiscard]] std::size_t height() const {
+        return height_helper(m_root);
+    }
+
+    [[nodiscard]] std::size_t leaf_count() const {
+        return leaf_count_helper(m_root);
+    }
+
+    // Traversals
     void inorder() const {
         inorder_helper(m_root);
         std::cout << std::endl;
@@ -163,11 +178,24 @@ private:
         std::cout << node->value << " ";
     }
 
-    auto copy_node(TNode<T>* node)  {
+    std::size_t height_helper(TNode<T>* node) const {
+        if (!node) return 0;
+        const std::size_t left_height = height_helper(node->left);
+        const std::size_t right_height = height_helper(node->right);
+        return std::max(left_height, right_height) + 1;
+    }
+
+    std::size_t leaf_count_helper(TNode<T>* node) const {
+        if (!node) return 0;
+        if (!node->left && !node->right) return 1;
+        return leaf_count_helper(node->left) + leaf_count_helper(node->right);
+    }
+
+    auto copy_nodes(TNode<T>* node)  {
         if (!node) return nullptr;
         auto new_node = new TNode<T>(node->value);
-        new_node->left = copy_node(node->left);
-        new_node->right = copy_node(node->right);
+        new_node->left = copy_nodes(node->left);
+        new_node->right = copy_nodes(node->right);
         return new_node;
     }
 };
