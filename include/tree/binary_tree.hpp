@@ -41,6 +41,14 @@ public:
         ++m_size;
     }
 
+    [[nodiscard]] std::size_t size() const {
+        return m_size;
+    }
+
+    bool empty() const {
+        return m_size == 0;
+    }
+
     void inorder() const {
         inorder_helper(m_root);
         std::cout << std::endl;
