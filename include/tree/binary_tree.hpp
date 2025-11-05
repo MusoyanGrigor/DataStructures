@@ -62,6 +62,24 @@ public:
         return false;
     }
 
+    const T& max() {
+        if (!m_root) throw std::out_of_range("Tree is empty");
+        TNode<T>* current = m_root;
+        while (current->right) {
+            current = current->right;
+        }
+        return current->value;
+    }
+
+    const T& min() {
+        if (!m_root) throw std::out_of_range("Tree is empty");
+        TNode<T>* current = m_root;
+        while (current->left) {
+            current = current->left;
+        }
+        return current->value;
+    }
+
     void inorder() const {
         inorder_helper(m_root);
         std::cout << std::endl;
