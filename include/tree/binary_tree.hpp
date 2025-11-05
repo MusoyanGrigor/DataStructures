@@ -75,6 +75,10 @@ public:
         ++m_size;
     }
 
+    auto remove(const T& value) {
+        return remove_node(m_root, value);
+    }
+
     void clear() {
         clear_data(m_root);
         m_root = nullptr;
@@ -197,5 +201,34 @@ private:
         new_node->left = copy_nodes(node->left);
         new_node->right = copy_nodes(node->right);
         return new_node;
+    }
+
+    TNode<T>* remove_node(TNode<T>* node, const T& value) {
+        if (!node) return nullptr;
+
+        if (value < node->value) {
+            node->left = remove_node(node->left, value);
+        } else if (value > node->value) {
+            node->right = remove_node(node->right, value);
+        } else {
+            if (!node->left) {
+                auto rightChild = node->right;
+                delete node;
+                --m_size;
+                return rightChild;
+            }
+            if (!node->right) {
+                auto leftChild = node->left;
+                delete node;
+                --m_size;
+                return leftChild;
+            }
+
+            TNode<T>* minNode = node->right;
+            while (minNode->left) minNode = minNode->left;
+            node->value = minNode->value;
+            node->right = remove_node(node->right, node->value);
+        }
+        return node;
     }
 };
