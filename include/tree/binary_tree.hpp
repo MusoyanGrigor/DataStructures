@@ -45,8 +45,21 @@ public:
         return m_size;
     }
 
-    bool empty() const {
+    [[nodiscard]] bool empty() const {
         return m_size == 0;
+    }
+
+    bool contains(const T& value) const {
+        TNode<T>* current = m_root;
+        while (current) {
+            if (current->value == value) return true;
+            if (value < current->value) {
+                current = current->left;
+            } else {
+                current = current->right;
+            }
+        }
+        return false;
     }
 
     void inorder() const {
