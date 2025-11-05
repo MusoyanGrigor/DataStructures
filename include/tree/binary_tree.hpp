@@ -19,6 +19,26 @@ public:
         other.m_size = 0;
     }
 
+    BinaryTree& operator=(const BinaryTree& other) {
+        if (this != &other) {
+            clear_data();
+            m_root = copy_node(other.m_root);
+            m_size = other.m_size;
+        }
+        return *this;
+    }
+
+    BinaryTree& operator=(BinaryTree&& other) noexcept {
+        if (this != &other) {
+            clear_data();
+            m_root = other.m_root;
+            m_size = other.m_size;
+            other.m_root = nullptr;
+            other.m_size = 0;
+        }
+        return *this;
+    }
+
     ~BinaryTree() {
         clean_data(m_root);
     }
@@ -115,7 +135,7 @@ private:
     TNode<T>* m_root;
     std::size_t m_size;
 
-    void clean_data(TNode<T>* node) {
+    void clear_data(TNode<T>* node) {
         if (!node) return;
         clean_data(node->left);
         clean_data(node->right);
