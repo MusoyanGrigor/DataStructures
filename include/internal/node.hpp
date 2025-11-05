@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 template<typename T>
 struct Node {
     Node() = default;
@@ -27,4 +29,13 @@ struct DNode {
     T value;
     DNode* next = nullptr;
     DNode* prev = nullptr;
+};
+
+template<typename T>
+struct TNode {
+    explicit TNode(const T& val) : value(val) {}
+
+    T value;
+    TNode* next = nullptr;
+    TNode* prev = nullptr;
 };
