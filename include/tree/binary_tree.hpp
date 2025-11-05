@@ -9,13 +9,23 @@ class BinaryTree {
 public:
     BinaryTree() : m_root(nullptr), m_size(0) {}
 
+    BinaryTree(const BinaryTree& other) : BinaryTree() {
+        m_root = copy_node(other.m_root);
+        m_size = other.m_size;
+    }
+
+    BinaryTree(BinaryTree&& other) noexcept : m_root(other.m_root), m_size(other.m_size) {
+        other.m_root = nullptr;
+        other.m_size = 0;
+    }
+
     ~BinaryTree() {
         clean_data(m_root);
     }
 
-    void push(const T& value) {
+    void insert(const T& value) {
         auto new_node = new TNode<T>(value);
-        if (m_root == nullptr) {
+        if (!m_root) {
             m_root = new_node;
             ++m_size;
             return;
@@ -39,6 +49,12 @@ public:
             parent->right = new_node;
         }
         ++m_size;
+    }
+
+    void clear() {
+        clean_data(m_root);
+        m_root = nullptr;
+        m_size = 0;
     }
 
     [[nodiscard]] std::size_t size() const {
@@ -125,5 +141,13 @@ private:
         postorder_helper(node->left);
         postorder_helper(node->right);
         std::cout << node->value << " ";
+    }
+
+    auto copy_node(TNode<T>* node)  {
+        if (!node) return nullptr;
+        auto new_node = new TNode<T>(node->value);
+        new_node->left = copy_node(node->left);
+        new_node->right = copy_node(node->right);
+        return new_node;
     }
 };
