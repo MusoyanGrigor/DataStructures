@@ -5,21 +5,21 @@
 #include "tree/internal/node.hpp"
 
 template<typename T>
-class BinaryTree {
+class Binary_tree {
 public:
-    BinaryTree() : m_root(nullptr), m_size(0) {}
+    Binary_tree() : m_root(nullptr), m_size(0) {}
 
-    BinaryTree(const BinaryTree& other) : BinaryTree() {
+    Binary_tree(const Binary_tree& other) : Binary_tree() {
         m_root = copy_node(other.m_root);
         m_size = other.m_size;
     }
 
-    BinaryTree(BinaryTree&& other) noexcept : m_root(other.m_root), m_size(other.m_size) {
+    Binary_tree(Binary_tree&& other) noexcept : m_root(other.m_root), m_size(other.m_size) {
         other.m_root = nullptr;
         other.m_size = 0;
     }
 
-    BinaryTree& operator=(const BinaryTree& other) {
+    Binary_tree& operator=(const Binary_tree& other) {
         if (this != &other) {
             clear_data();
             m_root = copy_node(other.m_root);
@@ -28,7 +28,7 @@ public:
         return *this;
     }
 
-    BinaryTree& operator=(BinaryTree&& other) noexcept {
+    Binary_tree& operator=(Binary_tree&& other) noexcept {
         if (this != &other) {
             clear_data();
             m_root = other.m_root;
@@ -39,8 +39,8 @@ public:
         return *this;
     }
 
-    ~BinaryTree() {
-        clean_data(m_root);
+    ~Binary_tree() {
+        clear_data(m_root);
     }
 
     void insert(const T& value) {
@@ -72,7 +72,7 @@ public:
     }
 
     void clear() {
-        clean_data(m_root);
+        clear_data(m_root);
         m_root = nullptr;
         m_size = 0;
     }
@@ -137,8 +137,8 @@ private:
 
     void clear_data(TNode<T>* node) {
         if (!node) return;
-        clean_data(node->left);
-        clean_data(node->right);
+        clear_data(node->left);
+        clear_data(node->right);
         delete node;
     }
 
