@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "tree/internal/node.hpp"
+#include "adaptors/queue.hpp"
 
 template<typename T>
 class Binary_tree {
@@ -150,6 +151,11 @@ public:
         std::cout << std::endl;
     }
 
+    void level_order() const {
+        level_order_helper(m_root);
+        std::cout << std::endl;
+    }
+
 private:
     TNode<T>* m_root;
     std::size_t m_size;
@@ -180,6 +186,21 @@ private:
         postorder_helper(node->left);
         postorder_helper(node->right);
         std::cout << node->value << " ";
+    }
+
+    void level_order_helper(TNode<T>* node) const {
+        if (!node) return;
+
+        Queue<TNode<T>*> q;
+        q.push(node);
+        while (!q.empty()) {
+            auto current = q.front();
+            q.pop();
+            std::cout << current->value << " ";
+
+            if (current->left) q.push(current->left);
+            if (current->right) q.push(current->right);
+        }
     }
 
     std::size_t height_helper(TNode<T>* node) const {
