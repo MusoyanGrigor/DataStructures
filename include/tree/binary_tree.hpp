@@ -6,23 +6,23 @@
 #include "adaptors/queue.hpp"
 
 template<typename T>
-class Binary_tree {
+class Binary_search_tree {
 public:
     // Constructors
-    Binary_tree() : m_root(nullptr), m_size(0) {}
+    Binary_search_tree() : m_root(nullptr), m_size(0) {}
 
-    Binary_tree(const Binary_tree& other) : Binary_tree() {
+    Binary_search_tree(const Binary_search_tree& other) : Binary_search_tree() {
         m_root = copy_nodes(other.m_root);
         m_size = other.m_size;
     }
 
-    Binary_tree(Binary_tree&& other) noexcept : m_root(other.m_root), m_size(other.m_size) {
+    Binary_search_tree(Binary_search_tree&& other) noexcept : m_root(other.m_root), m_size(other.m_size) {
         other.m_root = nullptr;
         other.m_size = 0;
     }
 
     // Assignment operator
-    Binary_tree& operator=(const Binary_tree& other) {
+    Binary_search_tree& operator=(const Binary_search_tree& other) {
         if (this != &other) {
             clear_data();
             m_root = copy_nodes(other.m_root);
@@ -31,7 +31,7 @@ public:
         return *this;
     }
 
-    Binary_tree& operator=(Binary_tree&& other) noexcept {
+    Binary_search_tree& operator=(Binary_search_tree&& other) noexcept {
         if (this != &other) {
             clear_data();
             m_root = other.m_root;
@@ -43,7 +43,7 @@ public:
     }
 
     // Destructor
-    ~Binary_tree() {
+    ~Binary_search_tree() {
         clear_data(m_root);
     }
 
