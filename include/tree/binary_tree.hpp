@@ -7,6 +7,13 @@
 template<typename T>
 class Binary_tree {
 public:
+    using value_type = T;
+    using pointer = T *;
+    using const_pointer = const T *;
+    using reference = T &;
+    using const_reference = const T &;
+    using size_type = size_t;
+
     // Constructors
     Binary_tree() : m_root(nullptr), m_size(0) {
     }
@@ -46,15 +53,15 @@ public:
     ~Binary_tree() { clear(); }
 
     // Modifiers
-    void insert(const T &value) {
-        auto new_node = new TNode<T>(value);
+    void insert(const_reference value) {
+        auto new_node = new TNode<value_type>(value);
         if (!m_root) {
             m_root = new_node;
             ++m_size;
             return;
         }
 
-        Queue<TNode<T> *> q;
+        Queue<TNode<value_type> *> q;
         q.push(m_root);
         while (!q.empty()) {
             auto current = q.front();
@@ -76,7 +83,7 @@ public:
         }
     }
 
-    bool remove(const T &value) {
+    bool remove(const_reference value) {
         if (!m_root) return false;
 
         if (m_root->value == value && m_size == 1) {
@@ -86,12 +93,12 @@ public:
             return true;
         }
 
-        Queue<TNode<T> *> q;
+        Queue<TNode<value_type> *> q;
         q.push(m_root);
 
-        TNode<T> *node_to_delete = nullptr;
-        TNode<T> *last_node = nullptr;
-        TNode<T> *last_node_parent = nullptr;
+        TNode<value_type> *node_to_delete = nullptr;
+        TNode<value_type> *last_node = nullptr;
+        TNode<value_type> *last_node_parent = nullptr;
 
         while (!q.empty()) {
             auto current = q.front();
@@ -130,7 +137,7 @@ public:
     }
 
     // Observers
-    [[nodiscard]] std::size_t size() const {
+    [[nodiscard]] size_type size() const {
         return m_size;
     }
 
@@ -138,17 +145,17 @@ public:
         return m_size == 0;
     }
 
-    [[nodiscard]] std::size_t height() const {
+    [[nodiscard]] size_type height() const {
         return height_helper(m_root);
     }
 
-    [[nodiscard]] std::size_t leaf_count() const {
+    [[nodiscard]] size_type leaf_count() const {
         return leaf_count_helper(m_root);
     }
 
-    bool contains(const T &value) const {
+    bool contains(const_reference value) const {
         if (!m_root) return false;
-        Queue<TNode<T> *> q;
+        Queue<TNode<value_type> *> q;
         q.push(m_root);
         while (!q.empty()) {
             auto current = q.front();
@@ -182,40 +189,40 @@ public:
     }
 
 private:
-    TNode<T> *m_root;
-    std::size_t m_size;
+    TNode<value_type> *m_root;
+    size_type m_size;
 
-    void clear_data(TNode<T> *node) {
+    void clear_data(TNode<value_type> *node) {
         if (!node) return;
         clear_data(node->left);
         clear_data(node->right);
         delete node;
     }
 
-    void inorder_helper(TNode<T> *node) const {
+    void inorder_helper(TNode<value_type> *node) const {
         if (!node) return;
         inorder_helper(node->left);
         std::cout << node->value << " ";
         inorder_helper(node->right);
     }
 
-    void preorder_helper(TNode<T> *node) const {
+    void preorder_helper(TNode<value_type> *node) const {
         if (!node) return;
         std::cout << node->value << " ";
         preorder_helper(node->left);
         preorder_helper(node->right);
     }
 
-    void postorder_helper(TNode<T> *node) const {
+    void postorder_helper(TNode<value_type> *node) const {
         if (!node) return;
         postorder_helper(node->left);
         postorder_helper(node->right);
         std::cout << node->value << " ";
     }
 
-    void level_order_helper(TNode<T> *node) const {
+    void level_order_helper(TNode<value_type> *node) const {
         if (!node) return;
-        Queue<TNode<T> *> q;
+        Queue<TNode<value_type> *> q;
         q.push(node);
         while (!q.empty()) {
             auto current = q.front();
@@ -226,20 +233,20 @@ private:
         }
     }
 
-    std::size_t height_helper(TNode<T> *node) const {
+    size_type height_helper(TNode<value_type> *node) const {
         if (!node) return 0;
         return std::max(height_helper(node->left), height_helper(node->right)) + 1;
     }
 
-    std::size_t leaf_count_helper(TNode<T> *node) const {
+    size_type leaf_count_helper(TNode<value_type> *node) const {
         if (!node) return 0;
         if (!node->left && !node->right) return 1;
         return leaf_count_helper(node->left) + leaf_count_helper(node->right);
     }
 
-    TNode<T> *copy_nodes(TNode<T> *node) {
+    TNode<value_type> *copy_nodes(TNode<value_type> *node) {
         if (!node) return nullptr;
-        auto new_node = new TNode<T>(node->value);
+        auto new_node = new TNode<value_type>(node->value);
         new_node->left = copy_nodes(node->left);
         new_node->right = copy_nodes(node->right);
         return new_node;
