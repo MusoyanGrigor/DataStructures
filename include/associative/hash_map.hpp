@@ -23,9 +23,8 @@ public:
         }
     }
 
-
     // Assignment operator
-    Hash_map & operator=(const Hash_map &other) {
+    Hash_map &operator=(const Hash_map &other) {
         if (this != &other) {
             m_buckets = other.m_buckets;
             m_bucket_count = other.m_bucket_count;
@@ -38,6 +37,13 @@ public:
             m_buckets = std::move(other.m_buckets);
             m_bucket_count = std::move(other.m_bucket_count);
         }
+        return *this;
+    }
+
+    Hash_map &operator=(std::initializer_list<std::pair<Key, Value>> i_list) {
+        for (auto &bucket : m_buckets) bucket.clear();
+        for (const auto &i : i_list) insert(i.first, i.second);
+
         return *this;
     }
 
