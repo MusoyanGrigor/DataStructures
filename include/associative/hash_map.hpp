@@ -74,6 +74,24 @@ public:
         return *value;
     }
 
+    // Capacity
+    [[nodiscard]] size_type size() const {
+        size_type count = 0;
+        for (auto &bucket : m_buckets) {
+            count += bucket.size();
+        }
+
+        return count;
+    }
+
+    [[nodiscard]] bool empty() const {
+        return size() == 0;
+    }
+
+    [[nodiscard]] size_type max_size() const {
+        return std::numeric_limits<size_type>::max();
+    }
+
     void insert(const key_type& key, const mapped_type& value) {
         const size_type index = std::hash<key_type>{}(key) % m_bucket_count;
         for (auto &kv : m_buckets[index]) {
