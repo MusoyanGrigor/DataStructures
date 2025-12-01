@@ -168,11 +168,17 @@ public:
         }
     }
 
+    void swap(Hash_map &other) noexcept {
+        using std::swap;
+        swap(m_buckets, other.m_buckets);
+        swap(m_bucket_count, other.m_bucket_count);
+        swap(m_max_load_factor, other.m_max_load_factor);
+    }
+
 private:
     Vector<bucket_type> m_buckets;
     size_type m_bucket_count;
     double m_max_load_factor = 0.75;
-
 
     void rehash(size_type new_bucket_count) {
         Vector<bucket_type> new_buckets(new_bucket_count);
@@ -187,3 +193,8 @@ private:
         m_bucket_count = new_bucket_count;
     }
 };
+
+template <typename Key, typename Value>
+void swap(Hash_map<Key, Value> &lhs, Hash_map<Key, Value> &rhs) noexcept {
+    lhs.swap(rhs);
+}
