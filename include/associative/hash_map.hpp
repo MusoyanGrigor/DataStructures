@@ -57,7 +57,13 @@ public:
     mapped_type& operator[](const key_type &key) {
         mapped_type* value = find(key);
         if (value) return *value;
+        insert(key, mapped_type{});
+        return *find(key);
+    }
 
+    mapped_type& operator[](key_type &&key) {
+        mapped_type* value = find(key);
+        if (value) return *value;
         insert(key, mapped_type{});
         return *find(key);
     }
