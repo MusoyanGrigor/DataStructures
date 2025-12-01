@@ -98,8 +98,24 @@ public:
         return std::numeric_limits<size_type>::max();
     }
 
+    void set_max_load_factor(const double factor) {
+        m_max_load_factor = factor;
+    }
+
+    double max_load_factor() const {
+        return m_max_load_factor;
+    }
+
+    double load_factor() const {
+        return static_cast<double>(size()) / m_bucket_count;
+    }
+
     // Modifiers and lookup
     void insert(const key_type& key, const mapped_type& value) {
+        if (size() + 1 > m_bucket_count * m_max_load_factor) {
+            rehash(m_bucket_count * 2);
+        }
+
         const size_type index = std::hash<key_type>{}(key) % m_bucket_count;
         for (auto &kv : m_buckets[index]) {
             if (kv.first == key) {
@@ -130,7 +146,7 @@ public:
         return nullptr;
     }
 
-    bool contains(const key_type &key) {
+    bool contains(const key_type &key) const {
         return find(key) != nullptr;
     }
 
@@ -146,7 +162,28 @@ public:
         return false;
     }
 
+    void clear() {
+        for (auto &bucket : m_buckets) {
+            bucket.clear();
+        }
+    }
+
 private:
     Vector<bucket_type> m_buckets;
     size_type m_bucket_count;
+    double m_max_load_factor = 0.75;
+
+
+    void rehash(size_type new_bucket_count) {
+        Vector<bucket_type> new_buckets(new_bucket_count);
+
+        for (auto &bucket : m_buckets) {
+            for (auto &kv : bucket) {
+                size_type new_index = std::hash<key_type>{}(kv.first) % new_bucket_count;
+                new_buckets[new_index].emplace_front(kv);
+            }
+        }
+        m_buckets = std::move(new_buckets);
+        m_bucket_count = new_bucket_count;
+    }
 };
