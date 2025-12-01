@@ -7,16 +7,22 @@
 template <typename Key, typename Value>
 class Hash_map {
 public:
+    using key_type = Key;
+    using mapped_type = Value;
+    using value_type = Pair<Key, Value>;
+    using size_type = size_t;
+    using bucket_type = Forward_list<Pair<Key, Value>>;
+
     // Constructors
     Hash_map() : m_buckets(4) ,m_bucket_count(4) {}
 
     Hash_map(const Hash_map &other) : m_buckets(other.m_buckets),m_bucket_count(other.m_bucket_count) {}
 
-    Hash_map(Hash_map &&other) noexcept : m_buckets(std::move(other.m_buckets)),m_bucket_count(std::move(other.m_bucket_count)) {}
+    Hash_map(Hash_map &&other) noexcept : m_buckets(std::move(other.m_buckets)),m_bucket_count(other.m_bucket_count) {}
 
-    explicit Hash_map(std::size_t num_buckets) : m_buckets(num_buckets), m_bucket_count(num_buckets) {}
+    explicit Hash_map(size_type num_buckets) : m_buckets(num_buckets), m_bucket_count(num_buckets) {}
 
-    Hash_map(std::initializer_list<std::pair<Key, Value>> i_list, const std::size_t bucket_count = 4)
+    Hash_map(std::initializer_list<value_type> i_list, const size_type bucket_count = 4)
         : m_buckets(bucket_count), m_bucket_count(bucket_count) {
         for (const auto &i : i_list) {
             insert(i.first, i.second);
@@ -35,21 +41,20 @@ public:
     Hash_map &operator=(Hash_map &&other) noexcept {
         if (this != &other) {
             m_buckets = std::move(other.m_buckets);
-            m_bucket_count = std::move(other.m_bucket_count);
+            m_bucket_count = other.m_bucket_count;
         }
         return *this;
     }
 
-    Hash_map &operator=(std::initializer_list<std::pair<Key, Value>> i_list) {
+    Hash_map &operator=(std::initializer_list<std::pair<key_type, mapped_type>> i_list) {
         for (auto &bucket : m_buckets) bucket.clear();
         for (const auto &i : i_list) insert(i.first, i.second);
 
         return *this;
     }
 
-
-    void insert(const Key& key, const Value& value) {
-        std::size_t index = std::hash<Key>{}(key) % m_bucket_count;
+    void insert(const key_type& key, const mapped_type& value) {
+        const size_type index = std::hash<key_type>{}(key) % m_bucket_count;
         for (auto &kv : m_buckets[index]) {
             if (kv.first == key) {
                 kv.second = value;
@@ -59,8 +64,8 @@ public:
         m_buckets[index].emplace_front({key, value});
     }
 
-    Value* find(const Key &key) {
-        const std::size_t index = std::hash<Key>{}(key) % m_bucket_count;
+    mapped_type* find(const key_type &key) {
+        const size_type index = std::hash<key_type>{}(key) % m_bucket_count;
         for (auto &kv : m_buckets[index]) {
             if (kv.first == key) {
                 return &kv.second;
@@ -69,8 +74,18 @@ public:
         return nullptr;
     }
 
-    bool remove(const Key &key) {
-        std::size_t index = std::hash<Key>{}(key) % m_bucket_count;
+    const mapped_type* find(const key_type &key) const {
+        const size_type index = std::hash<key_type>{}(key) % m_bucket_count;
+        for (auto &kv : m_buckets[index]) {
+            if (kv.first == key) {
+                return &kv.second;
+            }
+        }
+        return nullptr;
+    }
+
+    bool remove(const key_type &key) {
+        const size_type index = std::hash<key_type>{}(key) % m_bucket_count;
         auto &bucket = m_buckets[index];
         for (auto it = bucket.begin(); it != bucket.end(); ++it) {
             if (it->first == key) {
@@ -82,8 +97,6 @@ public:
     }
 
 private:
-    using Bucket = Forward_list<Pair<Key, Value>>;
-
-    Vector<Bucket> m_buckets;
-    std::size_t m_bucket_count;
+    Vector<bucket_type> m_buckets;
+    size_type m_bucket_count;
 };
