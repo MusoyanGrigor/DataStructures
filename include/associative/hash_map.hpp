@@ -53,6 +53,27 @@ public:
         return *this;
     }
 
+    // Element access
+    mapped_type& operator[](const key_type &key) {
+        mapped_type* value = find(key);
+        if (value) return *value;
+
+        insert(key, mapped_type{});
+        return *find(key);
+    }
+
+    mapped_type& at(const key_type &key) {
+        mapped_type* value = find(key);
+        if (!value) throw std::out_of_range("Key not found");
+        return *value;
+    }
+
+    const mapped_type& at(const key_type &key) const {
+        const mapped_type* value = find(key);
+        if (!value) throw std::out_of_range("Key not found");
+        return *value;
+    }
+
     void insert(const key_type& key, const mapped_type& value) {
         const size_type index = std::hash<key_type>{}(key) % m_bucket_count;
         for (auto &kv : m_buckets[index]) {
