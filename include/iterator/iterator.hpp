@@ -77,7 +77,7 @@ public:
     using pointer = T*;
     using reference = T&;
     using difference_type = std::ptrdiff_t;
-    using iterator_category = std::forward_iterator_tag;
+    using iterator_category = forward_iterator_tag;
     using node_type = Node<std::remove_const_t<T>>;
 
     explicit Forward_iterator(node_type* node = nullptr) : m_ptr(node) {}
@@ -117,7 +117,7 @@ public:
     using pointer = T*;
     using reference = T&;
     using difference_type = std::ptrdiff_t;
-    using iterator_category = std::bidirectional_iterator_tag;
+    using iterator_category = bidirectional_iterator_tag;
     using node_type = DNode<std::remove_const_t<T>>;
 
     explicit Bidirectional_iterator(node_type *node = nullptr) : m_ptr(node) {}
@@ -249,7 +249,7 @@ public:
     using pointer = T*;
     using reference = T&;
     using difference_type = std::ptrdiff_t;
-    using iterator_category = std::bidirectional_iterator_tag;
+    using iterator_category = bidirectional_iterator_tag;
     using node_type = DNode<std::remove_const_t<T>>;
 
     explicit Reverse_bidirectional_iterator(node_type *p = nullptr) : m_ptr(p) {}
