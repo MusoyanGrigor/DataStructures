@@ -98,6 +98,7 @@ public:
         return std::numeric_limits<size_type>::max();
     }
 
+    // Modifiers and lookup
     void insert(const key_type& key, const mapped_type& value) {
         const size_type index = std::hash<key_type>{}(key) % m_bucket_count;
         for (auto &kv : m_buckets[index]) {
@@ -127,6 +128,10 @@ public:
             }
         }
         return nullptr;
+    }
+
+    bool contains(const key_type &key) {
+        return find(key) != nullptr;
     }
 
     bool remove(const key_type &key) {
