@@ -25,7 +25,7 @@ public:
     Hash_map(std::initializer_list<value_type> i_list, const size_type bucket_count = 4)
         : m_buckets(bucket_count), m_bucket_count(bucket_count) {
         for (const auto &i : i_list) {
-            insert(i.first, i.second);
+            insert(i.first(), i.second());
         }
     }
 
@@ -48,7 +48,7 @@ public:
 
     Hash_map &operator=(std::initializer_list<std::pair<key_type, mapped_type>> i_list) {
         for (auto &bucket : m_buckets) bucket.clear();
-        for (const auto &i : i_list) insert(i.first, i.second);
+        for (const auto &i : i_list) insert(i.first(), i.second());
 
         return *this;
     }
@@ -102,11 +102,11 @@ public:
         m_max_load_factor = factor;
     }
 
-    double max_load_factor() const {
+    [[nodiscard]] double max_load_factor() const {
         return m_max_load_factor;
     }
 
-    double load_factor() const {
+    [[nodiscard]] double load_factor() const {
         return static_cast<double>(size()) / m_bucket_count;
     }
 
@@ -118,19 +118,19 @@ public:
 
         const size_type index = std::hash<key_type>{}(key) % m_bucket_count;
         for (auto &kv : m_buckets[index]) {
-            if (kv.first == key) {
-                kv.second = value;
+            if (kv.first() == key) {
+                kv.second() = value;
                 return;
             }
         }
-        m_buckets[index].emplace_front({key, value});
+        m_buckets[index].push_front(Pair<Key,Value>(key,value));
     }
 
     mapped_type* find(const key_type &key) {
         const size_type index = std::hash<key_type>{}(key) % m_bucket_count;
         for (auto &kv : m_buckets[index]) {
-            if (kv.first == key) {
-                return &kv.second;
+            if (kv.first() == key) {
+                return &kv.second();
             }
         }
         return nullptr;
@@ -139,8 +139,8 @@ public:
     const mapped_type* find(const key_type &key) const {
         const size_type index = std::hash<key_type>{}(key) % m_bucket_count;
         for (auto &kv : m_buckets[index]) {
-            if (kv.first == key) {
-                return &kv.second;
+            if (kv.first() == key) {
+                return &kv.second();
             }
         }
         return nullptr;
@@ -153,14 +153,18 @@ public:
     bool remove(const key_type &key) {
         const size_type index = std::hash<key_type>{}(key) % m_bucket_count;
         auto &bucket = m_buckets[index];
+
+        auto prev = bucket.before_begin();
         for (auto it = bucket.begin(); it != bucket.end(); ++it) {
-            if (it->first == key) {
-                bucket.erase(it);
+            if (it->first() == key) {
+                bucket.erase_after(prev);
                 return true;
             }
+            prev = it;
         }
         return false;
     }
+
 
     void clear() {
         for (auto &bucket : m_buckets) {
@@ -185,7 +189,7 @@ private:
 
         for (auto &bucket : m_buckets) {
             for (auto &kv : bucket) {
-                size_type new_index = std::hash<key_type>{}(kv.first) % new_bucket_count;
+                size_type new_index = std::hash<key_type>{}(kv.first()) % new_bucket_count;
                 new_buckets[new_index].emplace_front(kv);
             }
         }
