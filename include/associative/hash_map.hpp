@@ -113,11 +113,15 @@ public:
         return static_cast<double>(size()) / m_bucket_count;
     }
 
-    Vector<bucket_type> get_buckets() const {
+    Vector<bucket_type>& get_buckets() {
         return m_buckets;
     }
 
-    [[nodiscard]] size_type get_bucket_count() const {
+    const Vector<bucket_type>& get_buckets() const {
+        return m_buckets;
+    }
+
+    [[nodiscard]] const size_type &get_bucket_count() const {
         return m_bucket_count;
     }
 
@@ -199,7 +203,7 @@ public:
     }
 
     iterator end() {
-        return iterator(this, iterator::end_bucket_index(), {});
+        return iterator(this, iterator::end_bucket_index(), typename bucket_type::iterator{});
     }
 
     const_iterator begin() const {
@@ -212,10 +216,8 @@ public:
     }
 
     const_iterator end() const {
-        return const_iterator(this, iterator::end_bucket_index(), {});
+        return const_iterator(this, iterator::end_bucket_index(), typename bucket_type::iterator{});
     }
-
-
 
 private:
     Vector<bucket_type> m_buckets;
