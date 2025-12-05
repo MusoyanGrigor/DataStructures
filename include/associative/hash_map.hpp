@@ -3,6 +3,7 @@
 #include "sequence/vector.hpp"
 #include "sequence/forward_list.hpp"
 #include "utils/pair.hpp"
+#include "internal/hash_map_iterator.hpp"
 
 template <typename Key, typename Value>
 class Hash_map {
@@ -12,6 +13,8 @@ public:
     using value_type = Pair<Key, Value>;
     using size_type = size_t;
     using bucket_type = Forward_list<Pair<Key, Value>>;
+    using iterator = HashMapIterator<Hash_map>;
+    using const_iterator = HashMapIterator<const Hash_map>;
 
     // Constructors
     Hash_map() : m_buckets(4) ,m_bucket_count(4) {}
@@ -110,6 +113,14 @@ public:
         return static_cast<double>(size()) / m_bucket_count;
     }
 
+    Vector<bucket_type> get_buckets() const {
+        return m_buckets;
+    }
+
+    [[nodiscard]] size_type get_bucket_count() const {
+        return m_bucket_count;
+    }
+
     // Modifiers and lookup
     void insert(const key_type& key, const mapped_type& value) {
         if (size() + 1 > m_bucket_count * m_max_load_factor) {
@@ -165,7 +176,6 @@ public:
         return false;
     }
 
-
     void clear() {
         for (auto &bucket : m_buckets) {
             bucket.clear();
@@ -178,6 +188,34 @@ public:
         swap(m_bucket_count, other.m_bucket_count);
         swap(m_max_load_factor, other.m_max_load_factor);
     }
+
+    iterator begin() {
+        for (size_type i = 0; i < m_bucket_count; ++i) {
+            if (!m_buckets[i].empty()) {
+                return iterator(this, i, m_buckets[i].begin());
+            }
+        }
+        return end();
+    }
+
+    iterator end() {
+        return iterator(this, iterator::end_bucket_index(), {});
+    }
+
+    const_iterator begin() const {
+        for (size_type i = 0; i < m_bucket_count; ++i) {
+            if (!m_buckets[i].empty()) {
+                return const_iterator(this, i, m_buckets[i].begin());
+            }
+        }
+        return end();
+    }
+
+    const_iterator end() const {
+        return const_iterator(this, iterator::end_bucket_index(), {});
+    }
+
+
 
 private:
     Vector<bucket_type> m_buckets;
