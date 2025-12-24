@@ -216,7 +216,9 @@ public:
     }
 
     const_iterator end() const {
-        return const_iterator(this, iterator::end_bucket_index(), typename bucket_type::iterator{});
+        return const_iterator(this,
+                              iterator::end_bucket_index(),
+                              typename bucket_type::const_iterator{});
     }
 
 private:
