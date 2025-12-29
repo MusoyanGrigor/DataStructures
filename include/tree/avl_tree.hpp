@@ -15,13 +15,30 @@ public:
 
     AVL_tree() : m_root(nullptr), m_size(0) {}
 
+    ~AVL_tree() {
+        clear_data(m_root);
+    }
+
     void insert(const_reference value) {
         m_root = insert_node(m_root, value);
+    }
+
+    void clear() {
+        clear_data(m_root);
+        m_root = nullptr;
+        m_size = 0;
     }
 
 private:
     AVLNode<value_type>* m_root;
     size_type m_size;
+
+    void clear_data(AVLNode<value_type>* node) {
+        if (!node) return;
+        clear_data(node->left);
+        clear_data(node->right);
+        delete node;
+    }
 
     AVLNode<value_type>* insert_node(AVLNode<value_type>* node, const_reference value) {
         if (!node) {
