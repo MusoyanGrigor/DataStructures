@@ -28,6 +28,26 @@ public:
         other.m_size = 0;
     }
 
+    // Assignment operator
+    AVL_tree& operator=(const AVL_tree& other) {
+        if (this != &other) {
+            clear_data();
+            m_root = copy_nodes(other.m_root);
+            m_size = other.m_size;
+        }
+        return *this;
+    }
+
+    AVL_tree& operator=(AVL_tree&& other) noexcept {
+        if (this != &other) {
+            m_root = other.m_root;
+            m_size = other.m_size;
+            other.m_root = nullptr;
+            other.m_size = 0;
+        }
+        return *this;
+    }
+
     ~AVL_tree() {
         clear_data(m_root);
     }
