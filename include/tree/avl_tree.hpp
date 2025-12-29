@@ -29,6 +29,15 @@ public:
         m_size = 0;
     }
 
+    bool contains(const_reference value) const {
+        auto current = m_root;
+        while (current) {
+            if (value == current->value) return true;
+            current = value < current->value ? current->left : current->right;
+        }
+        return false;
+    }
+
 private:
     AVLNode<value_type>* m_root;
     size_type m_size;
