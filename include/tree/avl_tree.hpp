@@ -1,6 +1,8 @@
 #pragma once
 
 #include <iostream>
+
+#include "binary_search_tree.hpp"
 #include "internal/node.hpp"
 
 template <typename T>
@@ -13,7 +15,18 @@ public:
     using const_reference = const T&;
     using size_type = size_t;
 
+    // Constructors
     AVL_tree() : m_root(nullptr), m_size(0) {}
+
+    AVL_tree(const AVL_tree& other) : AVL_tree() {
+        m_root = copy_nodes(other.m_root);
+        m_size = other.m_size;
+    }
+
+    AVL_tree(AVL_tree&& other) noexcept : m_root(other.m_root), m_size(other.m_size) {
+        other.m_root = nullptr;
+        other.m_size = 0;
+    }
 
     ~AVL_tree() {
         clear_data(m_root);
@@ -47,6 +60,16 @@ private:
         clear_data(node->left);
         clear_data(node->right);
         delete node;
+    }
+
+    AVLNode<value_type>* copy_nodes(AVLNode<value_type>* node) {
+        if (!node) return nullptr;
+
+        auto new_node = new AVLNode<value_type>(node->value);
+        new_node->height = node->height;
+        new_node->left = copy_nodes(node->left);
+        new_node->right = copy_nodes(node->right);
+        return new_node;
     }
 
     AVLNode<value_type>* insert_node(AVLNode<value_type>* node, const_reference value) {
