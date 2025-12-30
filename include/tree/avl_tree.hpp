@@ -105,6 +105,14 @@ public:
         return current->value;
     }
 
+    size_type height() const {
+        return get_height(m_root);
+    }
+
+    size_type leaf_count() const {
+        return leaf_count_helper(m_root);
+    }
+
 private:
     AVLNode<value_type> *m_root;
     size_type m_size;
@@ -229,6 +237,12 @@ private:
 
     int get_balance(AVLNode<value_type> *node) const {
         return node ? get_height(node->left) - get_height(node->right) : 0;
+    }
+
+    size_type leaf_count_helper(AVLNode<value_type> *node) const {
+        if (!node) return 0;
+        if (!node->left && !node->right) return 1;
+        return leaf_count_helper(node->left) + leaf_count_helper(node->right);
     }
 
     AVLNode<value_type> *rotate_left(AVLNode<value_type> *x) {
