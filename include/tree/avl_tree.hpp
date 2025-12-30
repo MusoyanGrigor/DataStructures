@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-#include "binary_search_tree.hpp"
 #include "internal/node.hpp"
+#include "adaptors/queue.hpp"
 
 template<typename T>
 class AVL_tree {
