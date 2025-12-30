@@ -69,6 +69,15 @@ public:
         m_size = 0;
     }
 
+    // Observers
+    [[nodiscard]] size_type size() const {
+        return m_size;
+    }
+
+    [[nodiscard]] bool empty() const {
+        return m_size == 0;
+    }
+
     bool contains(const_reference value) const {
         auto current = m_root;
         while (current) {
@@ -76,6 +85,24 @@ public:
             current = value < current->value ? current->left : current->right;
         }
         return false;
+    }
+
+    const_reference max() const {
+        if (!m_root) throw std::out_of_range("Tree is empty");
+        AVLNode<value_type> *current = m_root;
+        while (current->right) {
+            current = current->right;
+        }
+        return current->value;
+    }
+
+    const_reference min() const {
+        if (!m_root) throw std::out_of_range("Tree is empty");
+        AVLNode<value_type> *current = m_root;
+        while (current->left) {
+            current = current->left;
+        }
+        return current->value;
     }
 
 private:
