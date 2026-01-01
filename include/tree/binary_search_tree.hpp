@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "tree/internal/node.hpp"
+#include "internal/nodes/t_node.hpp"
 #include "adaptors/queue.hpp"
 
 template<typename T>
@@ -16,8 +16,7 @@ public:
     using size_type = size_t;
 
     // Constructors
-    Binary_search_tree() : m_root(nullptr), m_size(0) {
-    }
+    Binary_search_tree() : m_root(nullptr), m_size(0) {}
 
     Binary_search_tree(const Binary_search_tree &other) : Binary_search_tree() {
         m_root = copy_nodes(other.m_root);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include "internal/node.hpp"
+#include "internal/nodes/t_node.hpp"
 #include "adaptors/queue.hpp"
 
 template<typename T>
