@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "internal/node.hpp"
+#include "internal/nodes/avl_node.hpp"
 #include "adaptors/queue.hpp"
 
 template<typename T>
