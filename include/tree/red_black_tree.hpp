@@ -70,6 +70,7 @@ public:
         delete NIL;
     }
 
+    // Modifiers
     void insert(const_reference value) {
         auto new_node = new RBNode<value_type>(value, NIL);
         auto parent = NIL;
@@ -97,7 +98,7 @@ public:
         insert_fixup(new_node);
     }
 
-    void remove_node(const_reference value) {
+    void remove(const_reference value) {
         auto z = m_root;
 
         // Find node
@@ -148,6 +149,12 @@ public:
         if (y_original_color == Color::BLACK) {
             delete_fixup(x);
         }
+    }
+
+    void clear() {
+        clear_data(m_root);
+        m_root = NIL;
+        m_size = 0;
     }
 
     // Traversals
