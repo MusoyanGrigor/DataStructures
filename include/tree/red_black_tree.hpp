@@ -97,8 +97,53 @@ public:
         m_root->color = Color::BLACK; // root must be black
     }
 
-    RBNode<value_type>* rotate_left(RBNode<value_type>* x) {}
-    RBNode<value_type>* rotate_right(RBNode<value_type>* y) {}
+    RBNode<value_type>* rotate_left(RBNode<value_type>* x) {
+        auto y = x->right;
+        x->right = y->left;
+
+        if (y->left != NIL) {
+            y->left->parent = x;
+        }
+
+        y->parent = x->parent; // Link x's parent to y
+
+        if (x->parent == NIL) {
+            m_root = y; // x was root, now y becomes root
+        } else if (x == x->parent->left) {
+            x->parent->left = y;
+        } else {
+            x->parent->right = y;
+        }
+
+        y->left = x;
+        x->parent = y;
+
+        return y;
+    }
+
+    RBNode<value_type>* rotate_right(RBNode<value_type>* y) {
+        auto x = y->left;
+        y->left = x->right;
+
+        if (x->right != NIL) {
+            x->right->parent = y;
+        }
+
+        x->parent = y->parent; // Link y's parent to x
+
+        if (y->parent == NIL) {
+            m_root = x;  // y was root, now x becomes root
+        } else if (y == y->parent->left) {
+            y->parent->left = x;
+        } else {
+            y->parent->right = x;
+        }
+
+        x->right = y;
+        y->parent = x;
+
+        return x;
+    }
 
 private:
     RBNode<value_type>* NIL;
