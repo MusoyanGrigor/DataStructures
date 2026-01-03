@@ -198,6 +198,10 @@ public:
         return height_helper(m_root);
     }
 
+    size_type black_height() const {
+        return black_height_helper(m_root);
+    }
+
     size_type leaf_count() const {
         return leaf_count_helper(m_root);
     }
@@ -293,6 +297,19 @@ private:
         const size_type left_height = height_helper(node->left);
         const size_type right_height = height_helper(node->right);
         return std::max(left_height, right_height) + 1;
+    }
+
+    size_type black_height_helper(RBNode<value_type>* node) const {
+        if (node == NIL) return 1;
+
+        const size_type left_bh = black_height_helper(node->left);
+        const size_type right_bh = black_height_helper(node->right);
+
+        if (left_bh != right_bh) {
+            throw std::logic_error("Red-Black tree property violation: unequal black heights");
+        }
+
+        return left_bh + (node->color == Color::BLACK ? 1 : 0);
     }
 
     size_type leaf_count_helper(RBNode<value_type> *node) const {
