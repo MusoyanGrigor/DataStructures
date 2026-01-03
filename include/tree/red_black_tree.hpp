@@ -1,7 +1,9 @@
 #pragma once
 
 #include <iostream>
+
 #include "internal/nodes/red_black_node.hpp"
+#include "adaptors/queue.hpp"
 
 template<typename T>
 class Red_black_tree {
@@ -104,6 +106,26 @@ public:
         }
     }
 
+    // Traversals
+    void inorder() const {
+        inorder_helper(m_root);
+        std::cout << std::endl;
+    }
+
+    void preorder() const {
+        preorder_helper(m_root);
+        std::cout << std::endl;
+    }
+
+    void postorder() const {
+        postorder_helper(m_root);
+        std::cout << std::endl;
+    }
+
+    void level_order() const {
+        level_order_helper(m_root);
+        std::cout << std::endl;
+    }
 private:
     RBNode<value_type> *NIL;
     RBNode<value_type> *m_root;
@@ -114,6 +136,42 @@ private:
             clear_data(node->left);
             clear_data(node->right);
             delete node;
+        }
+    }
+
+    void inorder_helper(RBNode<value_type> *node) const {
+        if (!node) return;
+        inorder_helper(node->left);
+        std::cout << node->value << " ";
+        inorder_helper(node->right);
+    }
+
+    void preorder_helper(RBNode<value_type> *node) const {
+        if (!node) return;
+        std::cout << node->value << " ";
+        preorder_helper(node->left);
+        preorder_helper(node->right);
+    }
+
+    void postorder_helper(RBNode<value_type> *node) const {
+        if (!node) return;
+        postorder_helper(node->left);
+        postorder_helper(node->right);
+        std::cout << node->value << " ";
+    }
+
+    void level_order_helper(RBNode<value_type> *node) const {
+        if (!node) return;
+
+        Queue<RBNode<value_type> *> q;
+        q.push(node);
+        while (!q.empty()) {
+            auto current = q.front();
+            q.pop();
+            std::cout << current->value << " ";
+
+            if (current->left) q.push(current->left);
+            if (current->right) q.push(current->right);
         }
     }
 
