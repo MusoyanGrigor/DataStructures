@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <iostream>
 
 #include "internal/nodes/red_black_node.hpp"
@@ -157,6 +158,50 @@ public:
         m_size = 0;
     }
 
+    // Observers
+    [[nodiscard]] size_type size() const {
+        return m_size;
+    }
+
+    [[nodiscard]] bool empty() const {
+        return m_size == 0;
+    }
+
+    bool contains(const_reference value) const {
+        auto current = m_root;
+        while (current != NIL) {
+            if (value == current->value) return true;
+            current = value < current->value ? current->left : current->right;
+        }
+        return false;
+    }
+
+    const_reference max() const {
+        if (m_root == NIL) throw std::out_of_range("Tree is empty");
+        RBNode<value_type> *current = m_root;
+        while (current->right) {
+            current = current->right;
+        }
+        return current->value;
+    }
+
+    const_reference min() const {
+        if (m_root == NIL) throw std::out_of_range("Tree is empty");
+        RBNode<value_type> *current = m_root;
+        while (current->left) {
+            current = current->left;
+        }
+        return current->value;
+    }
+
+    size_type height() const {
+        return height_helper(m_root);
+    }
+
+    size_type leaf_count() const {
+        return leaf_count_helper(m_root);
+    }
+
     // Traversals
     void inorder() const {
         inorder_helper(m_root);
@@ -241,6 +286,19 @@ private:
             new_node->right->parent = new_node;
 
         return new_node;
+    }
+
+    size_type height_helper(RBNode<value_type> *node) const {
+        if (node == NIL) return 0;
+        const size_type left_height = height_helper(node->left);
+        const size_type right_height = height_helper(node->right);
+        return std::max(left_height, right_height) + 1;
+    }
+
+    size_type leaf_count_helper(RBNode<value_type> *node) const {
+        if (node == NIL) return 0;
+        if (node->left == NIL && node->right == NIL) return 1;
+        return leaf_count_helper(node->left) + leaf_count_helper(node->right);
     }
 
     void insert_fixup(RBNode<value_type> *node) {
