@@ -38,6 +38,33 @@ public:
         other.m_size = 0;
     }
 
+    // Assignment operator
+    Red_black_tree &operator=(const Red_black_tree &other) {
+        if (this != &other) {
+            clear_data(m_root);
+            m_root = NIL;
+            m_root = copy_nodes(other.m_root);
+            m_size = other.m_size;
+        }
+        return *this;
+    }
+
+    Red_black_tree &operator=(Red_black_tree&& other) noexcept {
+        if (this != &other) {
+            clear_data(m_root);
+            m_root = (other.m_root == other.NIL) ? NIL : other.m_root;
+            m_size = other.m_size;
+
+            if (m_root != NIL)
+                m_root->parent = NIL;
+
+            other.m_root = other.NIL;
+            other.m_size = 0;
+        }
+        return *this;
+    }
+
+    // Destructor
     ~Red_black_tree() {
         clear_data(m_root);
         delete NIL;
@@ -208,7 +235,6 @@ private:
 
         return new_node;
     }
-
 
     void insert_fixup(RBNode<value_type> *node) {
         while (node->parent->color == Color::RED) {
