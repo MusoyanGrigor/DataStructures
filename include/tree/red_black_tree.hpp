@@ -15,10 +15,27 @@ public:
     using const_reference = const T &;
     using size_type = size_t;
 
+    // Constructors
     Red_black_tree() {
         NIL = new RBNode<value_type>;
         m_root = NIL;
         m_size = 0;
+    }
+
+    Red_black_tree(const Red_black_tree &other) : Red_black_tree() {
+        m_root = copy_nodes(other.m_root);
+        m_size = other.m_size;
+    }
+
+    Red_black_tree(Red_black_tree&& other) noexcept {
+        NIL = new RBNode<value_type>;
+        m_root = other.m_root == other.NIL ? NIL : other.m_root;
+        m_size = other.m_size;
+
+        if (m_root != NIL) m_root->parent = NIL;
+
+        other.m_root = other.NIL;
+        other.m_size = 0;
     }
 
     ~Red_black_tree() {
@@ -174,6 +191,24 @@ private:
             if (current->right) q.push(current->right);
         }
     }
+
+    RBNode<value_type>* copy_nodes(RBNode<value_type>* node) {
+        if (node == nullptr || node == NIL) return NIL;
+
+        auto new_node = new RBNode<value_type>(node->value, NIL);
+        new_node->color = node->color;
+
+        new_node->left = copy_nodes(node->left);
+        if (new_node->left != NIL)
+            new_node->left->parent = new_node;
+
+        new_node->right = copy_nodes(node->right);
+        if (new_node->right != NIL)
+            new_node->right->parent = new_node;
+
+        return new_node;
+    }
+
 
     void insert_fixup(RBNode<value_type> *node) {
         while (node->parent->color == Color::RED) {
